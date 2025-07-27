@@ -387,7 +387,6 @@ function showVotes() {
   document.getElementById("mainMenu").classList.add("hidden");
   document.getElementById("voteSummary").classList.remove("hidden");
 }
-
 function showCategoryVotes(title) {
   document.getElementById("voteSummary").classList.add("hidden");
   document.getElementById("categoryVotes").classList.remove("hidden");
@@ -400,7 +399,7 @@ function showCategoryVotes(title) {
   display.innerHTML = '';
   
   let maxVotes = Math.max(...data);
-  let winnerIndex = data.indexOf(maxVotes);
+  let winners = data.map((votes, index) => votes === maxVotes ? index : -1).filter(index => index !== -1);
   
   data.forEach((votes, index) => {
     const row = document.createElement("div");
@@ -414,11 +413,22 @@ function showCategoryVotes(title) {
   
   const winnerDiv = document.createElement("div");
   winnerDiv.className = "winner";
-  winnerDiv.innerHTML = `
-    <div>Winner</div>
-    <div style="margin-top: 10px; font-size: 18px;">${candidates[title][winnerIndex]}</div>
-    <div>with ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}</div>
-  `;
+  
+  if (winners.length > 1) {
+    winnerDiv.innerHTML = `
+      <div>No Winner (Tie)</div>
+      <div style="margin-top: 10px; font-size: 18px;">Multiple candidates have ${maxVotes} votes</div>
+    `;
+    winnerDiv.style.color = "#dc2626"; // Red color for no winner
+  } else {
+    winnerDiv.innerHTML = `
+      <div>Winner</div>
+      <div style="margin-top: 10px; font-size: 18px;">${candidates[title][winners[0]]}</div>
+      <div>with ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}</div>
+    `;
+    winnerDiv.style.color = "#059669"; // Green color for winner
+  }
+  
   display.appendChild(winnerDiv);
 }
 
