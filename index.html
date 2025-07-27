@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Voting Panel</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: white;
+      border: 2px solid #d1d5db;
+      padding: 30px;
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      position: relative;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      margin: 12px auto;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      border: 2px solid #2563eb;
+      background-color: white;
+      color: #2563eb;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-radius: 8px;
+    }
+
+    .btn:hover:enabled {
+      background-color: #eff6ff;
+    }
+
+    .btn:disabled {
+      background-color: #f3f4f6;
+      border-color: #d1d5db;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    #mainMenu .btn:nth-child(2) {
+      border-color: #4b5563;
+      color: #4b5563;
+    }
+
+    #mainMenu .btn:nth-child(2):hover {
+      background-color: #f3f4f6;
+    }
+
+    #mainMenu .btn:nth-child(3) {
+      border-color: #dc2626;
+      color: #dc2626;
+    }
+
+    #mainMenu .btn:nth-child(3):hover {
+      background-color: #fef2f2;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: #111827;
+    }
+
+    .back-arrow {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      font-size: 24px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: #4b5563;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background-color 0.2s;
+    }
+
+    .back-arrow:hover {
+      background-color: #f3f4f6;
+    }
+
+    .vote-list {
+      text-align: left;
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .vote-section {
+      margin-bottom: 16px;
+      font-weight: 600;
+      font-size: 18px;
+      text-align: center;
+      background-color: #f3f4f6;
+      padding: 10px;
+      border-radius: 8px;
+      color: #111827;
+    }
+
+    .winner {
+      border-top: 2px solid #e5e7eb;
+      margin-top: 20px;
+      padding-top: 20px;
+      font-weight: 600;
+      color: #059669;
+      text-align: center;
+    }
+
+    .candidate-row {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 10px 0;
+    }
+
+    .category-btn {
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
+      background-color: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      font-weight: 500;
+    }
+
+    .category-btn:hover {
+      border-color: #2563eb;
+      background-color: #eff6ff;
+    }
+
+    .scroll-container {
+      max-height: 60vh;
+      overflow-y: auto;
+      margin: 16px 0;
+      padding-right: 8px;
+    }
+
+    /* Custom scrollbar */
+    .scroll-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .scroll-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .scroll-container::-webkit-scrollbar-thumb {
+      background: #2563eb;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 24px 20px;
+      }
+      
+      .title {
+        font-size: 20px;
+        margin-bottom: 20px;
+      }
+      
+      .btn {
+        padding: 10px;
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="mainMenu">
+  <div class="title">Voting Panel</div>
+  <button class="btn" onclick="startVoting()">Start voting</button>
+  <button class="btn" onclick="askViewVotes()">View total votes</button>
+  <button class="btn" onclick="confirmClearVotes()">Delete all votes</button>
+</div>
+
+<div class="container hidden" id="voteSummary">
+  <button class="back-arrow" onclick="goTo('voteSummary', 'mainMenu')">&larr;</button>
+  <div class="title">Vote Summary</div>
+  <div class="scroll-container" id="voteButtons"></div>
+</div>
+
+<div class="container hidden" id="categoryVotes">
+  <button class="back-arrow" onclick="goTo('categoryVotes', 'voteSummary')">&larr;</button>
+  <div class="title" id="categoryTitle"></div>
+  <div class="scroll-container">
+    <div id="voteDisplay" class="vote-list"></div>
+  </div>
+</div>
+
+<script>
+const positions = [
+  "Vice Captain Aravali",
+  "Vice Captain Himalaya",
+  "Vice Captain Nilgiri",
+  "Vice Captain Sayadri",
+  "Captain Aravali",
+  "Captain Himalaya",
+  "Captain Nilgiri",
+  "Captain Sayadri",
+  "Sports Captain (Boy)",
+  "Sports Captain (Girl)",
+  "Head Girl",
+  "Head Boy"
+];
+
+// Candidate names for each position
+const candidates = {
+  "Vice Captain Aravali": ["Rahul Sharma", "Priya Patel", "Amit Singh"],
+  "Vice Captain Himalaya": ["Neha Gupta", "Vikram Joshi", "Sanya Malhotra"],
+  "Vice Captain Nilgiri": ["Arjun Kapoor", "Meera Nair", "Rohan Desai"],
+  "Vice Captain Sayadri": ["Ananya Iyer", "Karan Mehta", "Divya Reddy"],
+  "Captain Aravali": ["Aditya Verma", "Shreya Choudhary", "Rajat Khanna"],
+  "Captain Himalaya": ["Tanvi Shah", "Rohit Srinivasan", "Pooja Agarwal"],
+  "Captain Nilgiri": ["Varun Bhatia", "Ishita Kapoor", "Siddharth Malhotra"],
+  "Captain Sayadri": ["Nisha Rao", "Aryan Chawla", "Kavya Menon"],
+  "Sports Captain (Boy)": ["Ravi Kumar", "Harsh Pandey", "Yash Oberoi"],
+  "Sports Captain (Girl)": ["Diya Singh", "Anjali Mishra", "Tanya Chopra"],
+  "Head Girl": ["Sanjana Mehta", "Aishwarya Nair", "Ira Joshi"],
+  "Head Boy": ["Kunal Saxena", "Dhruv Malhotra", "Vedant Sharma"]
+};
+
+let current = 0;
+
+function startVoting() {
+  document.getElementById("mainMenu").classList.add("hidden");
+  showFrame(positions[current]);
+}
+
+function showFrame(title) {
+  let old = document.querySelector(".container:not(.hidden)");
+  if (old && old.id !== "mainMenu") old.classList.add("hidden");
+
+  let id = title.replace(/[^a-zA-Z]/g, "");
+  let div = document.getElementById(id);
+
+  if (!div) {
+    div = document.createElement("div");
+    div.className = "container";
+    div.id = id;
+    div.innerHTML = `
+      <button class="back-arrow" onclick="askBack('${id}')">&larr;</button>
+      <div class="title">${title}</div>
+      <button class="btn" onclick="vote('${title}', 0)">${candidates[title][0]}</button>
+      <button class="btn" onclick="vote('${title}', 1)">${candidates[title][1]}</button>
+      <button class="btn" onclick="vote('${title}', 2)">${candidates[title][2]}</button>
+    `;
+    document.body.appendChild(div);
+  }
+  div.classList.remove("hidden");
+}
+
+function vote(title, candidateIndex) {
+  let key = title;
+  let data = JSON.parse(localStorage.getItem(key) || '[0,0,0]');
+  data[candidateIndex]++;
+  localStorage.setItem(key, JSON.stringify(data));
+
+  current++;
+  if (current < positions.length) {
+    showFrame(positions[current]);
+  } else {
+    showThankYou();
+  }
+}
+
+function showThankYou() {
+  let thankYou = document.createElement("div");
+  thankYou.className = "container";
+  thankYou.id = "thankYouScreen";
+  thankYou.innerHTML = '<div class="title">Thank you for voting!</div>';
+
+  document.querySelectorAll(".btn").forEach(btn => btn.disabled = true);
+
+  document.body.appendChild(thankYou);
+  setTimeout(() => {
+    thankYou.remove();
+    current = 0;
+    showFrame(positions[current]);
+    document.querySelectorAll(".btn").forEach(btn => btn.disabled = false);
+  }, 2000);
+}
+
+function askBack(currentId) {
+  const pass = prompt("Enter password to return to dashboard:");
+  if (pass === "1234") {
+    document.getElementById(currentId).classList.add("hidden");
+    document.getElementById("mainMenu").classList.remove("hidden");
+    current = 0;
+  }
+}
+
+function askViewVotes() {
+  const pass = prompt("Enter password to view total votes:");
+  if (pass === "1234") {
+    showVotes();
+  }
+}
+
+function showVotes() {
+  const voteButtons = document.getElementById("voteButtons");
+  voteButtons.innerHTML = '';
+  
+  positions.forEach(pos => {
+    const btn = document.createElement("button");
+    btn.className = "category-btn";
+    btn.textContent = pos;
+    btn.onclick = () => showCategoryVotes(pos);
+    voteButtons.appendChild(btn);
+  });
+
+  document.getElementById("mainMenu").classList.add("hidden");
+  document.getElementById("voteSummary").classList.remove("hidden");
+}
+
+function showCategoryVotes(title) {
+  document.getElementById("voteSummary").classList.add("hidden");
+  document.getElementById("categoryVotes").classList.remove("hidden");
+  
+  const display = document.getElementById("voteDisplay");
+  const titleElement = document.getElementById("categoryTitle");
+  const data = JSON.parse(localStorage.getItem(title) || '[0,0,0]');
+  
+  titleElement.textContent = title;
+  display.innerHTML = '';
+  
+  let maxVotes = Math.max(...data);
+  let winnerIndex = data.indexOf(maxVotes);
+  
+  // Display each candidate's votes
+  data.forEach((votes, index) => {
+    const row = document.createElement("div");
+    row.className = "candidate-row";
+    row.innerHTML = `
+      <span>${candidates[title][index]}</span>
+      <span>${votes} vote${votes !== 1 ? 's' : ''}</span>
+    `;
+    display.appendChild(row);
+  });
+  
+  // Display winner section
+  const winnerDiv = document.createElement("div");
+  winnerDiv.className = "winner";
+  winnerDiv.innerHTML = `
+    <div>Winner</div>
+    <div style="margin-top: 10px; font-size: 18px;">${candidates[title][winnerIndex]}</div>
+    <div>with ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}</div>
+  `;
+  display.appendChild(winnerDiv);
+}
+
+function confirmClearVotes() {
+  const pass = prompt("Enter password to delete all votes:");
+  if (pass === "1234") {
+    localStorage.clear();
+    alert("All votes deleted.");
+  }
+}
+
+function goTo(from, to) {
+  document.getElementById(from).classList.add("hidden");
+  document.getElementById(to).classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>
