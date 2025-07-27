@@ -54,6 +54,20 @@
       cursor: not-allowed;
     }
 
+    .btn-next {
+      background-color: #2563eb;
+      color: white;
+    }
+
+    .btn-next:hover:enabled {
+      background-color: #1d4ed8;
+    }
+
+    .btn-next:disabled {
+      background-color: #93c5fd;
+      border-color: #93c5fd;
+    }
+
     #mainMenu .btn:nth-child(2) {
       border-color: #4b5563;
       color: #4b5563;
@@ -163,7 +177,6 @@
       padding-right: 8px;
     }
 
-    /* Custom scrollbar */
     .scroll-container::-webkit-scrollbar {
       width: 6px;
     }
@@ -176,6 +189,12 @@
     .scroll-container::-webkit-scrollbar-thumb {
       background: #2563eb;
       border-radius: 10px;
+    }
+
+    .selected {
+      background-color: #eff6ff;
+      border: 3px solid #2563eb;
+      box-shadow: 0 0 0 2px #bfdbfe;
     }
 
     @media (max-width: 480px) {
@@ -218,6 +237,11 @@
   </div>
 </div>
 
+<div class="container hidden" id="thankYouMenu">
+  <button class="back-arrow" onclick="askBack('thankYouMenu')">&larr;</button>
+  <button class="btn" onclick="restartVoting()">Start Voting</button>
+</div>
+
 <script>
 const positions = [
   "Vice Captain Aravali",
@@ -234,7 +258,6 @@ const positions = [
   "Head Boy"
 ];
 
-// Candidate names for each position
 const candidates = {
   "Vice Captain Aravali": ["Rahul Sharma", "Priya Patel", "Amit Singh"],
   "Vice Captain Himalaya": ["Neha Gupta", "Vikram Joshi", "Sanya Malhotra"],
@@ -251,15 +274,25 @@ const candidates = {
 };
 
 let current = 0;
+let selectedCandidate = null;
 
 function startVoting() {
   document.getElementById("mainMenu").classList.add("hidden");
+  selectedCandidate = null;
+  showFrame(positions[current]);
+}
+
+function restartVoting() {
+  current = 0;
+  selectedCandidate = null;
   showFrame(positions[current]);
 }
 
 function showFrame(title) {
-  let old = document.querySelector(".container:not(.hidden)");
-  if (old && old.id !== "mainMenu") old.classList.add("hidden");
+  // Hide all containers
+  document.querySelectorAll('.container').forEach(container => {
+    container.classList.add("hidden");
+  });
 
   let id = title.replace(/[^a-zA-Z]/g, "");
   let div = document.getElementById(id);
@@ -271,13 +304,40 @@ function showFrame(title) {
     div.innerHTML = `
       <button class="back-arrow" onclick="askBack('${id}')">&larr;</button>
       <div class="title">${title}</div>
-      <button class="btn" onclick="vote('${title}', 0)">${candidates[title][0]}</button>
-      <button class="btn" onclick="vote('${title}', 1)">${candidates[title][1]}</button>
-      <button class="btn" onclick="vote('${title}', 2)">${candidates[title][2]}</button>
+      <button class="btn candidate-btn" onclick="selectCandidate('${title}', 0, this)">${candidates[title][0]}</button>
+      <button class="btn candidate-btn" onclick="selectCandidate('${title}', 1, this)">${candidates[title][1]}</button>
+      <button class="btn candidate-btn" onclick="selectCandidate('${title}', 2, this)">${candidates[title][2]}</button>
+      <button class="btn btn-next" onclick="proceedToNext('${title}')" disabled>Next</button>
     `;
     document.body.appendChild(div);
+  } else {
+    // Reset selection when showing frame
+    div.querySelectorAll('.candidate-btn').forEach(btn => {
+      btn.classList.remove("selected");
+    });
+    div.querySelector('.btn-next').disabled = true;
   }
   div.classList.remove("hidden");
+}
+
+function selectCandidate(title, candidateIndex, buttonElement) {
+  const buttons = document.querySelectorAll(`#${title.replace(/[^a-zA-Z]/g, "")} .candidate-btn`);
+  buttons.forEach(btn => {
+    btn.classList.remove("selected");
+  });
+  
+  buttonElement.classList.add("selected");
+  document.querySelector(`#${title.replace(/[^a-zA-Z]/g, "")} .btn-next`).disabled = false;
+  selectedCandidate = { title, candidateIndex };
+}
+
+function proceedToNext(title) {
+  if (selectedCandidate && selectedCandidate.title === title) {
+    // Record the vote before moving to next frame
+    vote(title, selectedCandidate.candidateIndex);
+    // Clear selection after voting
+    selectedCandidate = null;
+  }
 }
 
 function vote(title, candidateIndex) {
@@ -290,25 +350,9 @@ function vote(title, candidateIndex) {
   if (current < positions.length) {
     showFrame(positions[current]);
   } else {
-    showThankYou();
+    document.querySelector('.container:not(.hidden)').classList.add('hidden');
+    document.getElementById("thankYouMenu").classList.remove("hidden");
   }
-}
-
-function showThankYou() {
-  let thankYou = document.createElement("div");
-  thankYou.className = "container";
-  thankYou.id = "thankYouScreen";
-  thankYou.innerHTML = '<div class="title">Thank you for voting!</div>';
-
-  document.querySelectorAll(".btn").forEach(btn => btn.disabled = true);
-
-  document.body.appendChild(thankYou);
-  setTimeout(() => {
-    thankYou.remove();
-    current = 0;
-    showFrame(positions[current]);
-    document.querySelectorAll(".btn").forEach(btn => btn.disabled = false);
-  }, 2000);
 }
 
 function askBack(currentId) {
@@ -317,6 +361,7 @@ function askBack(currentId) {
     document.getElementById(currentId).classList.add("hidden");
     document.getElementById("mainMenu").classList.remove("hidden");
     current = 0;
+    selectedCandidate = null;
   }
 }
 
@@ -357,7 +402,6 @@ function showCategoryVotes(title) {
   let maxVotes = Math.max(...data);
   let winnerIndex = data.indexOf(maxVotes);
   
-  // Display each candidate's votes
   data.forEach((votes, index) => {
     const row = document.createElement("div");
     row.className = "candidate-row";
@@ -368,7 +412,6 @@ function showCategoryVotes(title) {
     display.appendChild(row);
   });
   
-  // Display winner section
   const winnerDiv = document.createElement("div");
   winnerDiv.className = "winner";
   winnerDiv.innerHTML = `
@@ -390,8 +433,11 @@ function confirmClearVotes() {
 function goTo(from, to) {
   document.getElementById(from).classList.add("hidden");
   document.getElementById(to).classList.remove("hidden");
+  if (to === 'mainMenu') {
+    current = 0;
+    selectedCandidate = null;
+  }
 }
 </script>
-
 </body>
 </html>
