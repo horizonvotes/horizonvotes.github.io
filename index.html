@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Voting Panel</title>
+  <title>Horizon Academy - Voting Panel</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -28,8 +28,28 @@
       position: relative;
     }
 
+    .academy-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .academy-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 5px;
+    }
+
+    .academy-subtitle {
+      font-size: 16px;
+      color: #4b5563;
+      font-weight: 500;
+    }
+
     .btn {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
       margin: 12px auto;
       padding: 12px;
@@ -41,6 +61,7 @@
       cursor: pointer;
       transition: all 0.2s ease;
       border-radius: 8px;
+      text-align: left;
     }
 
     .btn:hover:enabled {
@@ -57,6 +78,7 @@
     .btn-next {
       background-color: #2563eb;
       color: white;
+      justify-content: center;
     }
 
     .btn-next:hover:enabled {
@@ -71,6 +93,7 @@
     #mainMenu .btn:nth-child(2) {
       border-color: #4b5563;
       color: #4b5563;
+      justify-content: center;
     }
 
     #mainMenu .btn:nth-child(2):hover {
@@ -80,10 +103,21 @@
     #mainMenu .btn:nth-child(3) {
       border-color: #dc2626;
       color: #dc2626;
+      justify-content: center;
     }
 
     #mainMenu .btn:nth-child(3):hover {
       background-color: #fef2f2;
+    }
+
+    #mainMenu .btn:nth-child(4) {
+      border-color: #059669;
+      color: #059669;
+      justify-content: center;
+    }
+
+    #mainMenu .btn:nth-child(4):hover {
+      background-color: #ecfdf5;
     }
 
     .hidden {
@@ -197,9 +231,25 @@
       box-shadow: 0 0 0 2px #bfdbfe;
     }
 
+    .candidate-content {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .candidate-name {
+      flex-grow: 1;
+      text-align: left;
+      margin-left: 10px;
+    }
+
     @media (max-width: 480px) {
       .container {
         padding: 24px 20px;
+      }
+      
+      .academy-name {
+        font-size: 22px;
       }
       
       .title {
@@ -213,25 +263,118 @@
       }
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script>
+    // Inline config.js content
+    const electionConfig = {
+      positions: [
+        "Vice Captain Aravali",
+        "Vice Captain Himalaya",
+        "Vice Captain Nilgiri",
+        "Vice Captain Sayadri",
+        "Captain Aravali",
+        "Captain Himalaya",
+        "Captain Nilgiri",
+        "Captain Sayadri",
+        "Sports Captain (Boy)",
+        "Sports Captain (Girl)",
+        "Head Girl",
+        "Head Boy"
+      ],
+      candidates: {
+        "Vice Captain Aravali": [
+          { name: "Candidate 1" },
+          { name: "Candidate 2" },
+          { name: "Candidate 3" }
+        ],
+        "Vice Captain Himalaya": [
+          { name: "Candidate 1" },
+          { name: "Candidate 2" },
+          { name: "Candidate 3" }
+        ],
+        "Vice Captain Nilgiri": [
+          { name: "Candidate 1" },
+          { name: "Candidate 2" },
+          { name: "Candidate 3" }
+        ],
+        "Vice Captain Sayadri": [
+          { name: "Candidate 1" },
+          { name: "Candidate 2" },
+          { name: "Candidate 3" }
+        ],
+        "Captain Aravali": [
+          { name: "Candidate 1" },
+          { name: "Candidate 2" },
+          { name: "Candidate 3" }
+        ],
+        "Captain Himalaya": [
+          { name: "Candidate 1" },
+          { name: "Candidate 2" },
+          { name: "Candidate 3" }
+        ],
+        "Captain Nilgiri": [
+          { name: "Candidate 1" },
+          { name: "Candidate 2" },
+          { name: "Candidate 3" }
+        ],
+        "Captain Sayadri": [
+          { name: "Candidate 1" },
+          { name: "Candidate 2" },
+          { name: "Candidate 3" }
+        ],
+        "Sports Captain (Boy)": [
+          { name: "Candidate 1" },
+          { name: "Candidate 2" },
+          { name: "Candidate 3" }
+        ],
+        "Sports Captain (Girl)": [
+          { name: "Candidate 1" },
+          { name: "Candidate 2" },
+          { name: "Candidate 3" }
+        ],
+        "Head Girl": [
+          { name: "Candidate 1" },
+          { name: "Candidate 2" },
+          { name: "Candidate 3" }
+        ],
+        "Head Boy": [
+          { name: "Candidate 1" },
+          { name: "Candidate 2" },
+          { name: "Candidate 3" }
+        ]
+      }
+    };
+  </script>
 </head>
 <body>
 
 <div class="container" id="mainMenu">
-  <div class="title">Voting Panel</div>
+  <div class="academy-header">
+    <div class="academy-name">Horizon Academy</div>
+    <div class="academy-subtitle">Election Panel</div>
+  </div>
   <button class="btn" onclick="startVoting()">Start voting</button>
   <button class="btn" onclick="askViewVotes()">View total votes</button>
   <button class="btn" onclick="confirmClearVotes()">Delete all votes</button>
+  <button class="btn" onclick="askDownloadResults()">Download Results (PDF)</button>
 </div>
 
 <div class="container hidden" id="voteSummary">
   <button class="back-arrow" onclick="goTo('voteSummary', 'mainMenu')">&larr;</button>
-  <div class="title">Vote Summary</div>
+  <div class="academy-header">
+    <div class="academy-name">Horizon Academy</div>
+    <div class="academy-subtitle">Vote Summary</div>
+  </div>
   <div class="scroll-container" id="voteButtons"></div>
 </div>
 
 <div class="container hidden" id="categoryVotes">
   <button class="back-arrow" onclick="goTo('categoryVotes', 'voteSummary')">&larr;</button>
-  <div class="title" id="categoryTitle"></div>
+  <div class="academy-header">
+    <div class="academy-name">Horizon Academy</div>
+    <div class="title" id="categoryTitle"></div>
+  </div>
   <div class="scroll-container">
     <div id="voteDisplay" class="vote-list"></div>
   </div>
@@ -239,39 +382,23 @@
 
 <div class="container hidden" id="thankYouMenu">
   <button class="back-arrow" onclick="askBack('thankYouMenu')">&larr;</button>
-  <button class="btn" onclick="restartVoting()">Start Voting</button>
+  <div class="academy-header">
+    <div class="academy-name">Horizon Academy</div>
+    <div class="academy-subtitle">Thank You</div>
+  </div>
+  <div style="margin: 20px 0; font-size: 18px;">
+    Your votes have been submitted successfully!
+  </div>
+  <button class="btn" onclick="restartVoting()">Start New Voting Session</button>
 </div>
 
 <script>
-const positions = [
-  "Vice Captain Aravali",
-  "Vice Captain Himalaya",
-  "Vice Captain Nilgiri",
-  "Vice Captain Sayadri",
-  "Captain Aravali",
-  "Captain Himalaya",
-  "Captain Nilgiri",
-  "Captain Sayadri",
-  "Sports Captain (Boy)",
-  "Sports Captain (Girl)",
-  "Head Girl",
-  "Head Boy"
-];
+// Initialize jsPDF
+const { jsPDF } = window.jspdf;
 
-const candidates = {
-  "Vice Captain Aravali": ["Rahul Sharma", "Priya Patel", "Amit Singh"],
-  "Vice Captain Himalaya": ["Neha Gupta", "Vikram Joshi", "Sanya Malhotra"],
-  "Vice Captain Nilgiri": ["Arjun Kapoor", "Meera Nair", "Rohan Desai"],
-  "Vice Captain Sayadri": ["Ananya Iyer", "Karan Mehta", "Divya Reddy"],
-  "Captain Aravali": ["Aditya Verma", "Shreya Choudhary", "Rajat Khanna"],
-  "Captain Himalaya": ["Tanvi Shah", "Rohit Srinivasan", "Pooja Agarwal"],
-  "Captain Nilgiri": ["Varun Bhatia", "Ishita Kapoor", "Siddharth Malhotra"],
-  "Captain Sayadri": ["Nisha Rao", "Aryan Chawla", "Kavya Menon"],
-  "Sports Captain (Boy)": ["Ravi Kumar", "Harsh Pandey", "Yash Oberoi"],
-  "Sports Captain (Girl)": ["Diya Singh", "Anjali Mishra", "Tanya Chopra"],
-  "Head Girl": ["Sanjana Mehta", "Aishwarya Nair", "Ira Joshi"],
-  "Head Boy": ["Kunal Saxena", "Dhruv Malhotra", "Vedant Sharma"]
-};
+// Use candidate data from config.js
+const positions = electionConfig.positions;
+const candidates = electionConfig.candidates;
 
 let current = 0;
 let selectedCandidate = null;
@@ -289,7 +416,6 @@ function restartVoting() {
 }
 
 function showFrame(title) {
-  // Hide all containers
   document.querySelectorAll('.container').forEach(container => {
     container.classList.add("hidden");
   });
@@ -301,17 +427,30 @@ function showFrame(title) {
     div = document.createElement("div");
     div.className = "container";
     div.id = id;
+    
+    const candidateButtons = candidates[title].map((candidate, index) => {
+      return `
+        <button class="btn candidate-btn" onclick="selectCandidate('${title}', ${index}, this)">
+          <div class="candidate-content">
+            <div class="candidate-name">${candidate.name}</div>
+          </div>
+        </button>
+      `;
+    }).join('');
+    
     div.innerHTML = `
       <button class="back-arrow" onclick="askBack('${id}')">&larr;</button>
-      <div class="title">${title}</div>
-      <button class="btn candidate-btn" onclick="selectCandidate('${title}', 0, this)">${candidates[title][0]}</button>
-      <button class="btn candidate-btn" onclick="selectCandidate('${title}', 1, this)">${candidates[title][1]}</button>
-      <button class="btn candidate-btn" onclick="selectCandidate('${title}', 2, this)">${candidates[title][2]}</button>
+      <div class="academy-header">
+        <div class="academy-name">Horizon Academy</div>
+        <div class="academy-subtitle">${title}</div>
+      </div>
+      <div class="scroll-container">
+        ${candidateButtons}
+      </div>
       <button class="btn btn-next" onclick="proceedToNext('${title}')" disabled>Next</button>
     `;
     document.body.appendChild(div);
   } else {
-    // Reset selection when showing frame
     div.querySelectorAll('.candidate-btn').forEach(btn => {
       btn.classList.remove("selected");
     });
@@ -333,26 +472,25 @@ function selectCandidate(title, candidateIndex, buttonElement) {
 
 function proceedToNext(title) {
   if (selectedCandidate && selectedCandidate.title === title) {
-    // Record the vote before moving to next frame
     vote(title, selectedCandidate.candidateIndex);
-    // Clear selection after voting
     selectedCandidate = null;
+    current++;
+    if (current < positions.length) {
+      showFrame(positions[current]);
+    } else {
+      document.querySelector('.container:not(.hidden)').classList.add('hidden');
+      document.getElementById("thankYouMenu").classList.remove("hidden");
+    }
   }
 }
 
 function vote(title, candidateIndex) {
   let key = title;
-  let data = JSON.parse(localStorage.getItem(key) || '[0,0,0]');
+  const candidateCount = candidates[title].length;
+  let data = JSON.parse(localStorage.getItem(key) || JSON.stringify(Array(candidateCount).fill(0)));
+  data = Array.isArray(data) ? data : JSON.parse(data); // Ensure we're working with an array
   data[candidateIndex]++;
   localStorage.setItem(key, JSON.stringify(data));
-
-  current++;
-  if (current < positions.length) {
-    showFrame(positions[current]);
-  } else {
-    document.querySelector('.container:not(.hidden)').classList.add('hidden');
-    document.getElementById("thankYouMenu").classList.remove("hidden");
-  }
 }
 
 function askBack(currentId) {
@@ -362,6 +500,8 @@ function askBack(currentId) {
     document.getElementById("mainMenu").classList.remove("hidden");
     current = 0;
     selectedCandidate = null;
+  } else if (pass !== null) {
+    alert("Incorrect password!");
   }
 }
 
@@ -369,7 +509,135 @@ function askViewVotes() {
   const pass = prompt("Enter password to view total votes:");
   if (pass === "1234") {
     showVotes();
+  } else if (pass !== null) {
+    alert("Incorrect password!");
   }
+}
+
+function askDownloadResults() {
+  const pass = prompt("Enter password to download results:");
+  if (pass === "1234") {
+    downloadResultsPDF();
+  } else if (pass !== null) {
+    alert("Incorrect password!");
+  }
+}
+
+function downloadResultsPDF() {
+  const doc = new jsPDF();
+  doc.setFontSize(20);
+  doc.setTextColor(40);
+  doc.text("Horizon Academy - Voting Results", 105, 15, { align: 'center' });
+  
+  const today = new Date();
+  doc.setFontSize(12);
+  doc.text(`Generated on: ${today.toLocaleDateString()} at ${today.toLocaleTimeString()}`, 105, 22, { align: 'center' });
+  
+  doc.setDrawColor(200);
+  doc.line(20, 25, 190, 25);
+  
+  let yPosition = 35;
+  
+  positions.forEach((position, index) => {
+    let votes = JSON.parse(localStorage.getItem(position) || JSON.stringify(Array(candidates[position].length).fill(0)));
+    votes = Array.isArray(votes) ? votes : JSON.parse(votes); // Ensure we're working with an array
+    const maxVotes = Math.max(...votes);
+    const winners = votes.map((v, i) => v === maxVotes ? i : -1).filter(i => i !== -1);
+    
+    doc.setFontSize(14);
+    doc.setTextColor(40);
+    doc.text(position, 20, yPosition);
+    yPosition += 8;
+    
+    doc.setFontSize(12);
+    candidates[position].forEach((candidate, i) => {
+      const isWinner = winners.includes(i);
+      doc.setTextColor(isWinner ? '#059669' : 40);
+      doc.text(`• ${candidate.name}: ${votes[i]} votes`, 25, yPosition);
+      yPosition += 7;
+    });
+    
+    if (winners.length > 1) {
+      doc.setTextColor('#dc2626');
+      doc.text('Result: TIE - Multiple candidates have the same highest votes', 25, yPosition);
+    } else if (winners.length === 1) {
+      doc.setTextColor('#059669');
+      doc.text(`Winner: ${candidates[position][winners[0]].name} with ${maxVotes} votes`, 25, yPosition);
+    } else {
+      doc.setTextColor('#4b5563');
+      doc.text('No votes recorded for this position', 25, yPosition);
+    }
+    
+    yPosition += 10;
+    
+    if (yPosition > 250 && index < positions.length - 1) {
+      doc.addPage();
+      yPosition = 20;
+    }
+  });
+  
+  doc.addPage();
+  doc.setFontSize(16);
+  doc.setTextColor(40);
+  doc.text("Horizon Academy - Voting Results Summary", 105, 15, { align: 'center' });
+  
+  const maxCandidates = Math.max(...positions.map(pos => candidates[pos].length));
+  let headers = ['Position'];
+  for (let i = 0; i < maxCandidates; i++) {
+    headers.push(`Candidate ${i+1}`);
+  }
+  headers.push('Winner');
+  
+  const tableData = positions.map(position => {
+    let votes = JSON.parse(localStorage.getItem(position) || JSON.stringify(Array(candidates[position].length).fill(0)));
+    votes = Array.isArray(votes) ? votes : JSON.parse(votes); // Ensure we're working with an array
+    const maxVotes = Math.max(...votes);
+    const winners = votes.map((v, i) => v === maxVotes ? i : -1).filter(i => i !== -1);
+    
+    let row = [position];
+    candidates[position].forEach((c, i) => {
+      row.push(`${c.name}: ${votes[i]} votes`);
+    });
+    
+    for (let i = candidates[position].length; i < maxCandidates; i++) {
+      row.push('-');
+    }
+    
+    if (winners.length > 1) {
+      row.push('TIE: ' + winners.map(i => candidates[position][i].name).join(', '));
+    } else if (winners.length === 1) {
+      row.push(candidates[position][winners[0]].name);
+    } else {
+      row.push('No winner');
+    }
+    
+    return row;
+  });
+  
+  doc.autoTable({
+    startY: 25,
+    head: [headers],
+    body: tableData,
+    theme: 'grid',
+    headStyles: {
+      fillColor: [41, 99, 235],
+      textColor: 255,
+      fontStyle: 'bold'
+    },
+    alternateRowStyles: {
+      fillColor: [240, 242, 245]
+    },
+    columnStyles: {
+      0: { cellWidth: 50 },
+      1: { cellWidth: 40 },
+      2: { cellWidth: 40 },
+      3: { cellWidth: 40 },
+      4: { cellWidth: 'auto' }
+    },
+    margin: { top: 25 }
+  });
+  
+  doc.save(`Horizon_Academy_Voting_Results_${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}.pdf`);
 }
 
 function showVotes() {
@@ -387,13 +655,15 @@ function showVotes() {
   document.getElementById("mainMenu").classList.add("hidden");
   document.getElementById("voteSummary").classList.remove("hidden");
 }
+
 function showCategoryVotes(title) {
   document.getElementById("voteSummary").classList.add("hidden");
   document.getElementById("categoryVotes").classList.remove("hidden");
   
   const display = document.getElementById("voteDisplay");
   const titleElement = document.getElementById("categoryTitle");
-  const data = JSON.parse(localStorage.getItem(title) || '[0,0,0]');
+  let data = JSON.parse(localStorage.getItem(title) || JSON.stringify(Array(candidates[title].length).fill(0)));
+  data = Array.isArray(data) ? data : JSON.parse(data); // Ensure we're working with an array
   
   titleElement.textContent = title;
   display.innerHTML = '';
@@ -405,7 +675,7 @@ function showCategoryVotes(title) {
     const row = document.createElement("div");
     row.className = "candidate-row";
     row.innerHTML = `
-      <span>${candidates[title][index]}</span>
+      <span>${candidates[title][index].name}</span>
       <span>${votes} vote${votes !== 1 ? 's' : ''}</span>
     `;
     display.appendChild(row);
@@ -419,14 +689,19 @@ function showCategoryVotes(title) {
       <div>No Winner (Tie)</div>
       <div style="margin-top: 10px; font-size: 18px;">Multiple candidates have ${maxVotes} votes</div>
     `;
-    winnerDiv.style.color = "#dc2626"; // Red color for no winner
-  } else {
+    winnerDiv.style.color = "#dc2626";
+  } else if (winners.length === 1) {
     winnerDiv.innerHTML = `
       <div>Winner</div>
-      <div style="margin-top: 10px; font-size: 18px;">${candidates[title][winners[0]]}</div>
+      <div style="margin-top: 10px; font-size: 18px;">${candidates[title][winners[0]].name}</div>
       <div>with ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}</div>
     `;
-    winnerDiv.style.color = "#059669"; // Green color for winner
+    winnerDiv.style.color = "#059669";
+  } else {
+    winnerDiv.innerHTML = `
+      <div>No Votes Recorded</div>
+    `;
+    winnerDiv.style.color = "#4b5563";
   }
   
   display.appendChild(winnerDiv);
@@ -435,8 +710,14 @@ function showCategoryVotes(title) {
 function confirmClearVotes() {
   const pass = prompt("Enter password to delete all votes:");
   if (pass === "1234") {
-    localStorage.clear();
-    alert("All votes deleted.");
+    if (confirm("Are you sure you want to delete ALL votes? This cannot be undone.")) {
+      positions.forEach(pos => {
+        localStorage.removeItem(pos);
+      });
+      alert("All votes have been deleted.");
+    }
+  } else if (pass !== null) {
+    alert("Incorrect password!");
   }
 }
 
@@ -450,4 +731,4 @@ function goTo(from, to) {
 }
 </script>
 </body>
-</html>
+</html> 	
