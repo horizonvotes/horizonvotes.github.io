@@ -294,10 +294,31 @@
       }
     }
   </style>
+  <!-- Firebase and jsPDF libraries -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-<script>
-    // Inline config.js content - THIS IS THE ONLY SECTION YOU NEED TO MODIFY
+  
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCMwGgyeQDkcFIjhnVmkWjhSyuwQiwNbFs",
+      authDomain: "horizonvotingsystem.firebaseapp.com",
+      projectId: "horizonvotingsystem",
+      storageBucket: "horizonvotingsystem.firebasestorage.app",
+      messagingSenderId: "490405390204",
+      appId: "1:490405390204:web:4f64c1f0a50c282d9026f9"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Initialize jsPDF
+    const { jsPDF } = window.jspdf;
+
+    // Election configuration
     const electionConfig = {
       positions: [
         "Vice Captain Aravali",
@@ -373,10 +394,7 @@
       }
     };
 
-    // Initialize jsPDF
-    const { jsPDF } = window.jspdf;
-
-    // Main application code - NO NEED TO MODIFY BELOW THIS LINE
+    // Main application code
     const positions = electionConfig.positions;
     const candidates = electionConfig.candidates;
 
@@ -384,29 +402,39 @@
     let selectedCandidate = null;
     let isSkipSelected = false;
 
-    // Initialize votes for new candidates when loading
-    function initializeVotes() {
-      positions.forEach(position => {
-        const currentCandidates = candidates[position] || [];
-        const storedVotes = JSON.parse(localStorage.getItem(position) || "null");
+    // Initialize votes in Firestore
+    async function initializeVotes() {
+      try {
+        const batch = db.batch();
         
-        if (!storedVotes || storedVotes.length !== currentCandidates.length) {
-          // Create new array with correct length, preserving existing votes if possible
-          const newVotes = Array(currentCandidates.length).fill(0);
-          if (storedVotes) {
-            for (let i = 0; i < Math.min(storedVotes.length, newVotes.length); i++) {
-              newVotes[i] = storedVotes[i];
-            }
+        for (const position of positions) {
+          const docRef = db.collection("voteCounts").doc(position);
+          const doc = await docRef.get();
+          
+          if (!doc.exists) {
+            const initialVotes = {};
+            candidates[position].forEach(candidate => {
+              initialVotes[candidate.name] = 0;
+            });
+            
+            batch.set(docRef, {
+              votes: initialVotes,
+              lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            });
           }
-          localStorage.setItem(position, JSON.stringify(newVotes));
         }
-      });
+        
+        await batch.commit();
+        console.log("Vote counts initialized in Firestore");
+      } catch (error) {
+        console.error("Error initializing vote counts:", error);
+      }
     }
 
     // Call initialization when page loads
-    window.onload = function() {
+    document.addEventListener('DOMContentLoaded', function() {
       initializeVotes();
-    };
+    });
 
     function startVoting() {
       document.getElementById("mainMenu").classList.add("hidden");
@@ -419,6 +447,7 @@
       current = 0;
       selectedCandidate = null;
       isSkipSelected = false;
+      document.getElementById("thankYouMenu").classList.add("hidden");
       showFrame(positions[current]);
     }
 
@@ -470,36 +499,38 @@
     }
 
     function selectSkip(title, buttonElement) {
-      const buttons = document.querySelectorAll(`#${title.replace(/[^a-zA-Z]/g, "")} .candidate-btn`);
+      const containerId = title.replace(/[^a-zA-Z]/g, "");
+      const buttons = document.querySelectorAll(`#${containerId} .candidate-btn`);
       buttons.forEach(btn => {
         btn.classList.remove("selected");
       });
       
       buttonElement.classList.add("selected");
-      document.querySelector(`#${title.replace(/[^a-zA-Z]/g, "")} .btn-next`).disabled = false;
+      document.querySelector(`#${containerId} .btn-next`).disabled = false;
       selectedCandidate = null;
       isSkipSelected = true;
     }
 
     function selectCandidate(title, candidateIndex, buttonElement) {
-      const buttons = document.querySelectorAll(`#${title.replace(/[^a-zA-Z]/g, "")} .candidate-btn`);
+      const containerId = title.replace(/[^a-zA-Z]/g, "");
+      const buttons = document.querySelectorAll(`#${containerId} .candidate-btn`);
       buttons.forEach(btn => {
         btn.classList.remove("selected");
       });
       
-      document.querySelector(`#${title.replace(/[^a-zA-Z]/g, "")} .btn-skip`).classList.remove("selected");
+      document.querySelector(`#${containerId} .btn-skip`).classList.remove("selected");
       
       buttonElement.classList.add("selected");
-      document.querySelector(`#${title.replace(/[^a-zA-Z]/g, "")} .btn-next`).disabled = false;
+      document.querySelector(`#${containerId} .btn-next`).disabled = false;
       selectedCandidate = { title, candidateIndex };
       isSkipSelected = false;
     }
 
-    function proceedToNext(title) {
+    async function proceedToNext(title) {
       if (isSkipSelected) {
         skipPosition(title);
       } else if (selectedCandidate && selectedCandidate.title === title) {
-        vote(title, selectedCandidate.candidateIndex);
+        await vote(title, selectedCandidate.candidateIndex);
         selectedCandidate = null;
         isSkipSelected = false;
         current++;
@@ -524,22 +555,33 @@
       }
     }
 
-    function vote(title, candidateIndex) {
-      let key = title;
-      let data = JSON.parse(localStorage.getItem(key) || "[]");
-      data = Array.isArray(data) ? data : JSON.parse(data);
+    async function vote(title, candidateIndex) {
+      const candidateName = candidates[title][candidateIndex].name;
       
-      // Ensure the votes array matches current candidates
-      if (data.length !== candidates[title].length) {
-        const newData = Array(candidates[title].length).fill(0);
-        for (let i = 0; i < Math.min(data.length, newData.length); i++) {
-          newData[i] = data[i];
-        }
-        data = newData;
+      try {
+        const voteCountRef = db.collection("voteCounts").doc(title);
+        
+        await db.runTransaction(async (transaction) => {
+          const doc = await transaction.get(voteCountRef);
+          if (!doc.exists) {
+            throw new Error("Document does not exist!");
+          }
+          
+          const currentVotes = doc.data().votes || {};
+          const currentCount = currentVotes[candidateName] || 0;
+          
+          transaction.update(voteCountRef, {
+            [`votes.${candidateName}`]: currentCount + 1,
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        });
+        
+        console.log(`Vote recorded for ${candidateName} as ${title}`);
+      } catch (error) {
+        console.error("Error recording vote:", error);
+        alert("Failed to record vote. Please try again.");
+        throw error;
       }
-      
-      data[candidateIndex]++;
-      localStorage.setItem(key, JSON.stringify(data));
     }
 
     function askBack(currentId) {
@@ -555,25 +597,25 @@
       }
     }
 
-    function askViewVotes() {
+    async function askViewVotes() {
       const pass = prompt("Enter password to view total votes:");
       if (pass === "1234") {
-        showVotes();
+        await showVotes();
       } else if (pass !== null) {
         alert("Incorrect password!");
       }
     }
 
-    function askDownloadResults() {
+    async function askDownloadResults() {
       const pass = prompt("Enter password to download results:");
       if (pass === "1234") {
-        downloadResultsPDF();
+        await downloadResultsPDF();
       } else if (pass !== null) {
         alert("Incorrect password!");
       }
     }
 
-    function downloadResultsPDF() {
+    async function downloadResultsPDF() {
       const doc = new jsPDF();
       doc.setFontSize(20);
       doc.setTextColor(40);
@@ -588,147 +630,174 @@
       
       let yPosition = 35;
       
-      positions.forEach((position, index) => {
-        let votes = JSON.parse(localStorage.getItem(position) || "[]");
-        votes = Array.isArray(votes) ? votes : JSON.parse(votes);
-        
-        // Ensure votes array matches current candidates
-        if (votes.length !== candidates[position].length) {
-          const newVotes = Array(candidates[position].length).fill(0);
-          for (let i = 0; i < Math.min(votes.length, newVotes.length); i++) {
-            newVotes[i] = votes[i];
+      try {
+        for (const position of positions) {
+          const docRef = db.collection("voteCounts").doc(position);
+          const docSnap = await docRef.get();
+          
+          if (!docSnap.exists) {
+            console.warn(`No data found for position: ${position}`);
+            continue;
           }
-          votes = newVotes;
+          
+          const voteData = docSnap.data().votes || {};
+          const candidatesList = candidates[position];
+          const votes = candidatesList.map(candidate => voteData[candidate.name] || 0);
+          const maxVotes = Math.max(...votes);
+          const winners = votes.map((v, i) => v === maxVotes ? i : -1).filter(i => i !== -1);
+          
+          doc.setFontSize(14);
+          doc.setTextColor(40);
+          doc.text(position, 20, yPosition);
+          yPosition += 8;
+          
+          doc.setFontSize(12);
+          candidatesList.forEach((candidate, i) => {
+            const isWinner = winners.includes(i);
+            doc.setTextColor(isWinner ? '#059669' : 40);
+            doc.text(`• ${candidate.name}: ${votes[i]} votes`, 25, yPosition);
+            yPosition += 7;
+          });
+          
+          if (winners.length > 1) {
+            doc.setTextColor('#dc2626');
+            doc.text('Result: TIE - Multiple candidates have the same highest votes', 25, yPosition);
+          } else if (winners.length === 1) {
+            doc.setTextColor('#059669');
+            doc.text(`Winner: ${candidatesList[winners[0]].name} with ${maxVotes} votes`, 25, yPosition);
+          } else {
+            doc.setTextColor('#4b5563');
+            doc.text('No votes recorded for this position', 25, yPosition);
+          }
+          
+          yPosition += 10;
+          
+          if (yPosition > 250) {
+            doc.addPage();
+            yPosition = 20;
+          }
         }
         
-        const maxVotes = Math.max(...votes);
-        const winners = votes.map((v, i) => v === maxVotes ? i : -1).filter(i => i !== -1);
-        
+        // Add creator credit at the end
         doc.setFontSize(14);
         doc.setTextColor(40);
-        doc.text(position, 20, yPosition);
-        yPosition += 8;
+        doc.text("Created By Bhavesh Pawar From Grade 9", 105, yPosition + 20, { align: 'center' });
         
-        doc.setFontSize(12);
-        candidates[position].forEach((candidate, i) => {
-          const isWinner = winners.includes(i);
-          doc.setTextColor(isWinner ? '#059669' : 40);
-          doc.text(`• ${candidate.name}: ${votes[i]} votes`, 25, yPosition);
-          yPosition += 7;
-        });
-        
-        if (winners.length > 1) {
-          doc.setTextColor('#dc2626');
-          doc.text('Result: TIE - Multiple candidates have the same highest votes', 25, yPosition);
-        } else if (winners.length === 1) {
-          doc.setTextColor('#059669');
-          doc.text(`Winner: ${candidates[position][winners[0]].name} with ${maxVotes} votes`, 25, yPosition);
-        } else {
-          doc.setTextColor('#4b5563');
-          doc.text('No votes recorded for this position', 25, yPosition);
-        }
-        
-        yPosition += 10;
-        
-        if (yPosition > 250 && index < positions.length - 1) {
-          doc.addPage();
-          yPosition = 20;
-        }
-      });
-      
-      // Add creator credit at the end
-      doc.addPage();
-      doc.setFontSize(14);
-      doc.setTextColor(40);
-      doc.text("Created By Bhavesh Pawar From Grade 9", 105, 100, { align: 'center' });
-      
-      doc.save(`Horizon_Academy_Voting_Results_${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}.pdf`);
+        doc.save(`Horizon_Academy_Voting_Results_${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}.pdf`);
+      } catch (error) {
+        console.error("Error generating PDF:", error);
+        alert("Failed to generate PDF. Please try again.");
+      }
     }
 
-    function showVotes() {
+    async function showVotes() {
       const voteButtons = document.getElementById("voteButtons");
       voteButtons.innerHTML = '';
       
-      positions.forEach(pos => {
+      for (const pos of positions) {
         const btn = document.createElement("button");
         btn.className = "category-btn";
         btn.textContent = pos;
         btn.onclick = () => showCategoryVotes(pos);
         voteButtons.appendChild(btn);
-      });
+      }
 
       document.getElementById("mainMenu").classList.add("hidden");
       document.getElementById("voteSummary").classList.remove("hidden");
     }
 
-    function showCategoryVotes(title) {
+    async function showCategoryVotes(title) {
       document.getElementById("voteSummary").classList.add("hidden");
       document.getElementById("categoryVotes").classList.remove("hidden");
       
       const display = document.getElementById("voteDisplay");
       const titleElement = document.getElementById("categoryTitle");
-      let data = JSON.parse(localStorage.getItem(title) || "[]");
-      data = Array.isArray(data) ? data : JSON.parse(data);
       
-      // Ensure votes array matches current candidates
-      if (data.length !== candidates[title].length) {
-        const newData = Array(candidates[title].length).fill(0);
-        for (let i = 0; i < Math.min(data.length, newData.length); i++) {
-          newData[i] = data[i];
+      try {
+        const docRef = db.collection("voteCounts").doc(title);
+        const docSnap = await docRef.get();
+        
+        if (!docSnap.exists) {
+          throw new Error("No vote data found for this position");
         }
-        data = newData;
+        
+        const voteData = docSnap.data().votes || {};
+        const candidatesList = candidates[title];
+        
+        titleElement.textContent = title;
+        display.innerHTML = '';
+        
+        const votes = candidatesList.map(candidate => voteData[candidate.name] || 0);
+        const maxVotes = Math.max(...votes);
+        const winners = votes.map((votes, index) => votes === maxVotes ? index : -1).filter(index => index !== -1);
+        
+        candidatesList.forEach((candidate, index) => {
+          const row = document.createElement("div");
+          row.className = "candidate-row";
+          row.innerHTML = `
+            <span>${candidate.name}</span>
+            <span>${votes[index]} vote${votes[index] !== 1 ? 's' : ''}</span>
+          `;
+          display.appendChild(row);
+        });
+        
+        const winnerDiv = document.createElement("div");
+        winnerDiv.className = "winner";
+        
+        if (winners.length > 1) {
+          winnerDiv.innerHTML = `
+            <div>No Winner (Tie)</div>
+            <div style="margin-top: 10px; font-size: 18px;">Multiple candidates have ${maxVotes} votes</div>
+          `;
+          winnerDiv.style.color = "#dc2626";
+        } else if (winners.length === 1) {
+          winnerDiv.innerHTML = `
+            <div>Winner</div>
+            <div style="margin-top: 10px; font-size: 18px;">${candidatesList[winners[0]].name}</div>
+            <div>with ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}</div>
+          `;
+          winnerDiv.style.color = "#059669";
+        } else {
+          winnerDiv.innerHTML = `
+            <div>No Votes Recorded</div>
+          `;
+          winnerDiv.style.color = "#4b5563";
+        }
+        
+        display.appendChild(winnerDiv);
+      } catch (error) {
+        console.error("Error showing category votes:", error);
+        alert("Failed to load vote data. Please try again.");
       }
-      
-      titleElement.textContent = title;
-      display.innerHTML = '';
-      
-      let maxVotes = Math.max(...data);
-      let winners = data.map((votes, index) => votes === maxVotes ? index : -1).filter(index => index !== -1);
-      
-      candidates[title].forEach((candidate, index) => {
-        const row = document.createElement("div");
-        row.className = "candidate-row";
-        row.innerHTML = `
-          <span>${candidate.name}</span>
-          <span>${data[index]} vote${data[index] !== 1 ? 's' : ''}</span>
-        `;
-        display.appendChild(row);
-      });
-      
-      const winnerDiv = document.createElement("div");
-      winnerDiv.className = "winner";
-      
-      if (winners.length > 1) {
-        winnerDiv.innerHTML = `
-          <div>No Winner (Tie)</div>
-          <div style="margin-top: 10px; font-size: 18px;">Multiple candidates have ${maxVotes} votes</div>
-        `;
-        winnerDiv.style.color = "#dc2626";
-      } else if (winners.length === 1) {
-        winnerDiv.innerHTML = `
-          <div>Winner</div>
-          <div style="margin-top: 10px; font-size: 18px;">${candidates[title][winners[0]].name}</div>
-          <div>with ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}</div>
-        `;
-        winnerDiv.style.color = "#059669";
-      } else {
-        winnerDiv.innerHTML = `
-          <div>No Votes Recorded</div>
-        `;
-        winnerDiv.style.color = "#4b5563";
-      }
-      
-      display.appendChild(winnerDiv);
     }
 
-    function confirmClearVotes() {
+    async function confirmClearVotes() {
       const pass = prompt("Enter password to delete all votes:");
       if (pass === "1234") {
         if (confirm("Are you sure you want to delete ALL votes? This cannot be undone.")) {
-          positions.forEach(pos => {
-            localStorage.removeItem(pos);
-          });
-          alert("All votes have been deleted.");
+          try {
+            // Reset all vote counts in Firestore
+            const batch = db.batch();
+            
+            for (const position of positions) {
+              const docRef = db.collection("voteCounts").doc(position);
+              const initialVotes = {};
+              candidates[position].forEach(candidate => {
+                initialVotes[candidate.name] = 0;
+              });
+              
+              batch.set(docRef, {
+                votes: initialVotes,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+              });
+            }
+            
+            await batch.commit();
+            alert("All votes have been reset successfully.");
+          } catch (error) {
+            console.error("Error clearing votes:", error);
+            alert("Failed to reset votes. Please try again.");
+          }
         }
       } else if (pass !== null) {
         alert("Incorrect password!");
