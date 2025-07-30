@@ -274,6 +274,50 @@
       text-align: center;
     }
 
+    /* Login form styles */
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .login-input {
+      padding: 12px;
+      border: 2px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .login-input:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    .login-btn {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .login-btn:hover {
+      background-color: #1d4ed8;
+    }
+
+    .error-message {
+      color: #dc2626;
+      font-size: 14px;
+      margin-top: -10px;
+      text-align: center;
+    }
+
     @media (max-width: 480px) {
       .container {
         padding: 24px 20px;
@@ -306,7 +350,7 @@
       apiKey: "AIzaSyCMwGgyeQDkcFIjhnVmkWjhSyuwQiwNbFs",
       authDomain: "horizonvotingsystem.firebaseapp.com",
       projectId: "horizonvotingsystem",
-      storageBucket: "horizonvotingsystem.firebasestorage.app",
+      storageBucket: "horizonvotingsystem.appspot.com",
       messagingSenderId: "490405390204",
       appId: "1:490405390204:web:4f64c1f0a50c282d9026f9"
     };
@@ -431,9 +475,34 @@
       }
     }
 
+    // Login system
+    function checkLogin() {
+      const passwordInput = document.getElementById('loginPassword').value;
+      const errorElement = document.getElementById('loginError');
+      
+      // Root password is "null" (case insensitive)
+      if (passwordInput.toLowerCase() === 'null') {
+        // Successful login
+        document.getElementById('loginContainer').classList.add('hidden');
+        document.getElementById('mainMenu').classList.remove('hidden');
+        initializeVotes();
+      } else {
+        // Failed login
+        errorElement.textContent = 'Incorrect password. Please try again.';
+      }
+    }
+
     // Call initialization when page loads
     document.addEventListener('DOMContentLoaded', function() {
-      initializeVotes();
+      // Show login screen first
+      document.getElementById('loginContainer').classList.remove('hidden');
+      document.getElementById('mainMenu').classList.add('hidden');
+      
+      // Add event listener for login form submission
+      document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        checkLogin();
+      });
     });
 
     function startVoting() {
@@ -817,7 +886,22 @@
 </head>
 <body>
 
-<div class="container" id="mainMenu">
+<!-- Login Screen -->
+<div class="container" id="loginContainer">
+  <div class="academy-header">
+    <div class="academy-name">Horizon Academy</div>
+    <div class="academy-subtitle">Election Panel Login</div>
+  </div>
+  <form id="loginForm" class="login-form">
+    <input type="password" id="loginPassword" class="login-input" placeholder="Enter password" required>
+    <button type="submit" class="login-btn">Login</button>
+    <div id="loginError" class="error-message"></div>
+  </form>
+  <div class="creator-credit">Created By Bhavesh Pawar From Grade 9</div>
+</div>
+
+<!-- Main Menu (hidden by default) -->
+<div class="container hidden" id="mainMenu">
   <div class="academy-header">
     <div class="academy-name">Horizon Academy</div>
     <div class="academy-subtitle">Election Panel</div>
