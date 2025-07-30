@@ -253,6 +253,12 @@
       background-color: #f3f4f6;
     }
 
+    .btn-skip.selected {
+      background-color: #f3f4f6;
+      border: 3px solid #4b5563;
+      box-shadow: 0 0 0 2px #d1d5db;
+    }
+
     .creator-credit {
       margin-top: 20px;
       font-size: 14px;
@@ -376,6 +382,7 @@
 
     let current = 0;
     let selectedCandidate = null;
+    let isSkipSelected = false;
 
     // Initialize votes for new candidates when loading
     function initializeVotes() {
@@ -404,12 +411,14 @@
     function startVoting() {
       document.getElementById("mainMenu").classList.add("hidden");
       selectedCandidate = null;
+      isSkipSelected = false;
       showFrame(positions[current]);
     }
 
     function restartVoting() {
       current = 0;
       selectedCandidate = null;
+      isSkipSelected = false;
       showFrame(positions[current]);
     }
 
@@ -444,7 +453,7 @@
           </div>
           <div class="scroll-container">
             ${candidateButtons}
-            <button class="btn btn-skip" onclick="skipPosition('${title}')">Skip this position</button>
+            <button class="btn btn-skip" onclick="selectSkip('${title}', this)">Skip this position</button>
           </div>
           <button class="btn btn-next" onclick="proceedToNext('${title}')" disabled>Next</button>
           <div class="frame-creator-credit">Created By Bhavesh Pawar</div>
@@ -454,20 +463,22 @@
         div.querySelectorAll('.candidate-btn').forEach(btn => {
           btn.classList.remove("selected");
         });
+        div.querySelector('.btn-skip').classList.remove("selected");
         div.querySelector('.btn-next').disabled = true;
       }
       div.classList.remove("hidden");
     }
 
-    function skipPosition(title) {
+    function selectSkip(title, buttonElement) {
+      const buttons = document.querySelectorAll(`#${title.replace(/[^a-zA-Z]/g, "")} .candidate-btn`);
+      buttons.forEach(btn => {
+        btn.classList.remove("selected");
+      });
+      
+      buttonElement.classList.add("selected");
+      document.querySelector(`#${title.replace(/[^a-zA-Z]/g, "")} .btn-next`).disabled = false;
       selectedCandidate = null;
-      current++;
-      if (current < positions.length) {
-        showFrame(positions[current]);
-      } else {
-        document.querySelector('.container:not(.hidden)').classList.add('hidden');
-        document.getElementById("thankYouMenu").classList.remove("hidden");
-      }
+      isSkipSelected = true;
     }
 
     function selectCandidate(title, candidateIndex, buttonElement) {
@@ -476,15 +487,21 @@
         btn.classList.remove("selected");
       });
       
+      document.querySelector(`#${title.replace(/[^a-zA-Z]/g, "")} .btn-skip`).classList.remove("selected");
+      
       buttonElement.classList.add("selected");
       document.querySelector(`#${title.replace(/[^a-zA-Z]/g, "")} .btn-next`).disabled = false;
       selectedCandidate = { title, candidateIndex };
+      isSkipSelected = false;
     }
 
     function proceedToNext(title) {
-      if (selectedCandidate && selectedCandidate.title === title) {
+      if (isSkipSelected) {
+        skipPosition(title);
+      } else if (selectedCandidate && selectedCandidate.title === title) {
         vote(title, selectedCandidate.candidateIndex);
         selectedCandidate = null;
+        isSkipSelected = false;
         current++;
         if (current < positions.length) {
           showFrame(positions[current]);
@@ -492,6 +509,18 @@
           document.querySelector('.container:not(.hidden)').classList.add('hidden');
           document.getElementById("thankYouMenu").classList.remove("hidden");
         }
+      }
+    }
+
+    function skipPosition(title) {
+      selectedCandidate = null;
+      isSkipSelected = false;
+      current++;
+      if (current < positions.length) {
+        showFrame(positions[current]);
+      } else {
+        document.querySelector('.container:not(.hidden)').classList.add('hidden');
+        document.getElementById("thankYouMenu").classList.remove("hidden");
       }
     }
 
@@ -520,6 +549,7 @@
         document.getElementById("mainMenu").classList.remove("hidden");
         current = 0;
         selectedCandidate = null;
+        isSkipSelected = false;
       } else if (pass !== null) {
         alert("Incorrect password!");
       }
@@ -711,6 +741,7 @@
       if (to === 'mainMenu') {
         current = 0;
         selectedCandidate = null;
+        isSkipSelected = false;
       }
     }
   </script>
