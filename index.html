@@ -337,6 +337,46 @@
       font-weight: bold;
     }
 
+    /* Connection status indicator */
+    .connection-status {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: #dc2626; /* Red by default */
+      box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.3);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .connection-status.active {
+      background-color: #059669; /* Green when active */
+      box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.3);
+    }
+    
+    .connection-status::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #1f2937;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    
+    .connection-status:hover::after {
+      opacity: 1;
+    }
+
     @media (max-width: 480px) {
       .container {
         padding: 24px 20px;
@@ -466,6 +506,9 @@
     let isSkipSelected = false;
     let timerInterval;
     let timeLeft = 300; // 5 minutes in seconds
+    let connectionRef;
+    let myConnectionId;
+    let activeConnections = 0;
 
     // Initialize votes in Firestore
     async function initializeVotes() {
@@ -496,6 +539,69 @@
       }
     }
 
+    // Initialize connection monitoring
+    function initConnectionMonitoring() {
+      // Generate a unique ID for this connection
+      myConnectionId = 'conn-' + Math.random().toString(36).substr(2, 9);
+      
+      // Create a reference to our connection in Firestore
+      connectionRef = db.collection('connections').doc(myConnectionId);
+      
+      // Set up our connection presence
+      connectionRef.set({
+        connected: true,
+        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(error => {
+        console.error("Error setting connection:", error);
+      });
+      
+      // Set up a listener for all active connections
+      db.collection('connections')
+        .where('connected', '==', true)
+        .onSnapshot((snapshot) => {
+          activeConnections = snapshot.size;
+          updateConnectionStatus();
+          
+          // Remove any connections older than 30 seconds
+          const now = new Date();
+          snapshot.docs.forEach(doc => {
+            const lastActive = doc.data().lastActive?.toDate();
+            if (lastActive && (now - lastActive) > 30000) { // 30 seconds
+              db.collection('connections').doc(doc.id).delete().catch(console.error);
+            }
+          });
+        });
+      
+      // Update our lastActive timestamp every 10 seconds
+      setInterval(() => {
+        if (connectionRef) {
+          connectionRef.update({
+            lastActive: firebase.firestore.FieldValue.serverTimestamp()
+          }).catch(console.error);
+        }
+      }, 10000);
+      
+      // Clean up our connection when the page is closed
+      window.addEventListener('beforeunload', () => {
+        if (connectionRef) {
+          connectionRef.delete().catch(console.error);
+        }
+      });
+    }
+    
+    // Update the connection status indicator
+    function updateConnectionStatus() {
+      const statusElement = document.getElementById('connectionStatus');
+      
+      if (activeConnections >= 2) {
+        statusElement.classList.add('active');
+        statusElement.setAttribute('data-tooltip', `${activeConnections} devices connected`);
+      } else {
+        statusElement.classList.remove('active');
+        statusElement.setAttribute('data-tooltip', 'Waiting for another device...');
+      }
+    }
+
     // Login system
     function checkLogin() {
       const passwordInput = document.getElementById('loginPassword').value;
@@ -515,6 +621,9 @@
 
     // Call initialization when page loads
     document.addEventListener('DOMContentLoaded', function() {
+      // Initialize connection monitoring
+      initConnectionMonitoring();
+      
       // Show login screen first
       document.getElementById('loginContainer').classList.remove('hidden');
       document.getElementById('mainMenu').classList.add('hidden');
@@ -975,6 +1084,9 @@
   </script>
 </head>
 <body>
+
+<!-- Connection status indicator -->
+<div class="connection-status" id="connectionStatus" data-tooltip="Waiting for another device..."></div>
 
 <!-- Login Screen -->
 <div class="container" id="loginContainer">
