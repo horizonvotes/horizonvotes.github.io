@@ -318,6 +318,25 @@
       text-align: center;
     }
 
+    .invisible-admin-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      opacity: 0;
+    }
+
+    .timer-display {
+      font-size: 16px;
+      color: #dc2626;
+      margin: 10px 0;
+      font-weight: bold;
+    }
+
     @media (max-width: 480px) {
       .container {
         padding: 24px 20px;
@@ -445,6 +464,8 @@
     let current = 0;
     let selectedCandidate = null;
     let isSkipSelected = false;
+    let timerInterval;
+    let timeLeft = 300; // 5 minutes in seconds
 
     // Initialize votes in Firestore
     async function initializeVotes() {
@@ -480,8 +501,8 @@
       const passwordInput = document.getElementById('loginPassword').value;
       const errorElement = document.getElementById('loginError');
       
-      // Root password is "null" (case insensitive)
-      if (passwordInput.toLowerCase() === 'null') {
+      // Changed password to 'horizon' (case insensitive)
+      if (passwordInput.toLowerCase() === 'horizon') {
         // Successful login
         document.getElementById('loginContainer').classList.add('hidden');
         document.getElementById('mainMenu').classList.remove('hidden');
@@ -545,6 +566,7 @@
         
         div.innerHTML = `
           <button class="back-arrow" onclick="askBack('${id}')">&larr;</button>
+          <button class="invisible-admin-btn" onclick="handleAdminOverride('${id}')"></button>
           <div class="academy-header">
             <div class="academy-name">Horizon Academy</div>
             <div class="academy-subtitle">${title}</div>
@@ -565,6 +587,21 @@
         div.querySelector('.btn-next').disabled = true;
       }
       div.classList.remove("hidden");
+    }
+
+    function handleAdminOverride(containerId) {
+      const pass = prompt("Enter admin password:");
+      if (pass === "1234") {
+        // If we're in the thank you menu with timer running, skip it
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          document.getElementById("thankYouMenu").querySelector(".btn").disabled = false;
+          document.getElementById("thankYouMenu").querySelector(".timer-display").remove();
+        }
+        alert("Admin override activated.");
+      } else if (pass !== null) {
+        alert("Incorrect password!");
+      }
     }
 
     function selectSkip(title, buttonElement) {
@@ -606,10 +643,56 @@
         if (current < positions.length) {
           showFrame(positions[current]);
         } else {
-          document.querySelector('.container:not(.hidden)').classList.add('hidden');
-          document.getElementById("thankYouMenu").classList.remove("hidden");
+          showThankYouMenu();
         }
       }
+    }
+
+    function showThankYouMenu() {
+      document.querySelector('.container:not(.hidden)').classList.add('hidden');
+      const thankYouMenu = document.getElementById("thankYouMenu");
+      
+      // Add timer display and disable button
+      thankYouMenu.innerHTML = `
+        <button class="back-arrow" onclick="askBack('thankYouMenu')">&larr;</button>
+        <button class="invisible-admin-btn" onclick="handleAdminOverride('thankYouMenu')"></button>
+        <div class="academy-header">
+          <div class="academy-name">Horizon Academy</div>
+          <div class="academy-subtitle">Thank You</div>
+        </div>
+        <div style="margin: 20px 0; font-size: 18px;">
+          Your votes have been submitted successfully!
+        </div>
+        <div class="timer-display">Please wait 5:00 before voting again</div>
+        <button class="btn" onclick="restartVoting()" disabled>Start New Voting Session</button>
+        <div class="frame-creator-credit">Created By Bhavesh Pawar</div>
+      `;
+      
+      thankYouMenu.classList.remove("hidden");
+      
+      // Start the countdown timer
+      startTimer();
+    }
+
+    function startTimer() {
+      const timerDisplay = document.querySelector('.timer-display');
+      const restartButton = document.getElementById("thankYouMenu").querySelector(".btn");
+      
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `Please wait ${minutes}:${seconds < 10 ? '0' : ''}${seconds} before voting again`;
+        
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          restartButton.disabled = false;
+          timerDisplay.textContent = "You can now vote again";
+          timerDisplay.style.color = "#059669";
+          timeLeft = 300; // Reset timer for next use
+        }
+      }, 1000);
     }
 
     function skipPosition(title) {
@@ -619,8 +702,7 @@
       if (current < positions.length) {
         showFrame(positions[current]);
       } else {
-        document.querySelector('.container:not(.hidden)').classList.add('hidden');
-        document.getElementById("thankYouMenu").classList.remove("hidden");
+        showThankYouMenu();
       }
     }
 
@@ -661,6 +743,10 @@
         current = 0;
         selectedCandidate = null;
         isSkipSelected = false;
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timeLeft = 300;
+        }
       } else if (pass !== null) {
         alert("Incorrect password!");
       }
@@ -880,6 +966,10 @@
         current = 0;
         selectedCandidate = null;
         isSkipSelected = false;
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timeLeft = 300;
+        }
       }
     }
   </script>
@@ -902,6 +992,7 @@
 
 <!-- Main Menu (hidden by default) -->
 <div class="container hidden" id="mainMenu">
+  <button class="invisible-admin-btn" onclick="handleAdminOverride('mainMenu')"></button>
   <div class="academy-header">
     <div class="academy-name">Horizon Academy</div>
     <div class="academy-subtitle">Election Panel</div>
@@ -915,6 +1006,7 @@
 
 <div class="container hidden" id="voteSummary">
   <button class="back-arrow" onclick="goTo('voteSummary', 'mainMenu')">&larr;</button>
+  <button class="invisible-admin-btn" onclick="handleAdminOverride('voteSummary')"></button>
   <div class="academy-header">
     <div class="academy-name">Horizon Academy</div>
     <div class="academy-subtitle">Vote Summary</div>
@@ -924,6 +1016,7 @@
 
 <div class="container hidden" id="categoryVotes">
   <button class="back-arrow" onclick="goTo('categoryVotes', 'voteSummary')">&larr;</button>
+  <button class="invisible-admin-btn" onclick="handleAdminOverride('categoryVotes')"></button>
   <div class="academy-header">
     <div class="academy-name">Horizon Academy</div>
     <div class="title" id="categoryTitle"></div>
@@ -934,16 +1027,7 @@
 </div>
 
 <div class="container hidden" id="thankYouMenu">
-  <button class="back-arrow" onclick="askBack('thankYouMenu')">&larr;</button>
-  <div class="academy-header">
-    <div class="academy-name">Horizon Academy</div>
-    <div class="academy-subtitle">Thank You</div>
-  </div>
-  <div style="margin: 20px 0; font-size: 18px;">
-    Your votes have been submitted successfully!
-  </div>
-  <button class="btn" onclick="restartVoting()">Start New Voting Session</button>
-  <div class="frame-creator-credit">Created By Bhavesh Pawar</div>
+  <!-- This will be dynamically generated when needed -->
 </div>
 
 </body>
