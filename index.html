@@ -1675,7 +1675,7 @@
               doc.setTextColor(76, 201, 240); // Success color
               doc.text('Winner: ' + candidatesList[winners[0]], 20, yPosition);
               yPosition += 7;
-              doc.text(`with ${maxVotes} vote${maxVotes !== 1 ? 's' : ''} (${totalVotes > 0 ? Math.round((maxVotes / totalVotes) * 100) : 0}%)`, 20, yPosition);
+              doc.text(`with ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}`, 20, yPosition);
             }
             
             yPosition += 15;
@@ -1720,3 +1720,4 @@
 </script>
 </body>
 </html>
+
