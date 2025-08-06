@@ -976,11 +976,23 @@
     const passwordInput = document.getElementById('loginPassword').value;
     const errorElement = document.getElementById('loginError');
     
+    // Clear previous error
+    errorElement.textContent = '';
+    
+    if (!passwordInput) {
+      errorElement.textContent = 'Please enter a password';
+      return;
+    }
+
     if (passwordInput.toLowerCase() === 'horizon') {
       // Successful login to main voting panel
       document.getElementById('loginContainer').classList.add('hidden');
       loadCandidateData().then(() => {
         document.getElementById('mainMenu').classList.remove('hidden');
+      }).catch(error => {
+        console.error("Error loading candidate data:", error);
+        errorElement.textContent = 'Failed to load voting data. Please try again.';
+        document.getElementById('loginContainer').classList.remove('hidden');
       });
     } else if (passwordInput.toLowerCase() === 'data') {
       // Successful login to candidate management
@@ -988,6 +1000,10 @@
       loadCandidateData().then(() => {
         document.getElementById('candidateManagement').classList.remove('hidden');
         updateCandidateList();
+      }).catch(error => {
+        console.error("Error loading candidate data:", error);
+        errorElement.textContent = 'Failed to load candidate data. Please try again.';
+        document.getElementById('loginContainer').classList.remove('hidden');
       });
     } else {
       // Failed login
@@ -1016,6 +1032,7 @@
     } catch (error) {
       console.error("Error loading candidate data:", error);
       showToast('Failed to load candidate data', 'error');
+      throw error;
     }
   }
 
@@ -1028,7 +1045,7 @@
       candidateList.innerHTML = candidatesData[position].map(candidate => `
         <div class="candidate-item">
           <span>${candidate}</span>
-          <button class="remove-candidate-btn" onclick="removeCandidate('${position}', '${candidate}')">
+          <button class="remove-candidate-btn" onclick="removeCandidate('${position}', '${candidate.replace(/'/g, "\\'")}')">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -1171,7 +1188,8 @@
       container.classList.add("hidden");
     });
 
-    let id = title.replace(/[^a-zA-Z]/g, "");
+    // Create a more unique ID by removing spaces and adding prefix
+    let id = "voteFrame_" + title.replace(/\s+/g, "_");
     let div = document.getElementById(id);
 
     if (!div) {
@@ -1181,7 +1199,7 @@
       
       const candidateButtons = (candidatesData[title] || []).map((candidate, index) => {
         return `
-          <button class="btn candidate-btn" onclick="selectCandidate('${title}', ${index}, this)">
+          <button class="btn candidate-btn" onclick="selectCandidate('${title.replace(/'/g, "\\'")}', ${index}, this)">
             <div class="candidate-content">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -1202,7 +1220,7 @@
         </div>
         <div class="scroll-container">
           ${candidateButtons || '<div style="text-align: center; padding: 20px; color: #6b7280;">No candidates for this position</div>'}
-          <button class="btn btn-skip" onclick="selectSkip('${title}', this)">
+          <button class="btn btn-skip" onclick="selectSkip('${title.replace(/'/g, "\\'")}', this)">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
@@ -1210,7 +1228,7 @@
             Skip this position
           </button>
         </div>
-        <button class="btn btn-next" onclick="proceedToNext('${title}')" disabled>
+        <button class="btn btn-next" onclick="proceedToNext('${title.replace(/'/g, "\\'")}')" disabled>
           Next
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px;">
             <path d="M5 12h14M12 5l7 7-7 7"></path>
@@ -1230,7 +1248,7 @@
   }
 
   function selectSkip(title, buttonElement) {
-    const containerId = title.replace(/[^a-zA-Z]/g, "");
+    const containerId = "voteFrame_" + title.replace(/\s+/g, "_");
     const buttons = document.querySelectorAll(`#${containerId} .candidate-btn`);
     buttons.forEach(btn => {
       btn.classList.remove("selected");
@@ -1243,7 +1261,7 @@
   }
 
   function selectCandidate(title, candidateIndex, buttonElement) {
-    const containerId = title.replace(/[^a-zA-Z]/g, "");
+    const containerId = "voteFrame_" + title.replace(/\s+/g, "_");
     const buttons = document.querySelectorAll(`#${containerId} .candidate-btn`);
     buttons.forEach(btn => {
       btn.classList.remove("selected");
@@ -1293,7 +1311,12 @@
       await db.runTransaction(async (transaction) => {
         const doc = await transaction.get(voteCountRef);
         if (!doc.exists) {
-          throw new Error("Document does not exist!");
+          // Initialize if document doesn't exist
+          transaction.set(voteCountRef, {
+            votes: { [candidateName]: 1 },
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          return;
         }
         
         const currentVotes = doc.data().votes || {};
@@ -1353,6 +1376,11 @@
 
   function startTimer() {
     const restartBtn = document.getElementById("restartBtn");
+    
+    // Clear any existing timer
+    if (timerInterval) {
+      clearInterval(timerInterval);
+    }
     
     timerInterval = setInterval(() => {
       timeLeft--;
@@ -1546,16 +1574,19 @@
 
   // Navigation function
   function goTo(from, to) {
+    // Clear any existing timer
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    
     document.getElementById(from).classList.add("hidden");
     document.getElementById(to).classList.remove("hidden");
     if (to === 'mainMenu') {
       current = 0;
       selectedCandidate = null;
       isSkipSelected = false;
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timeLeft = 300;
-      }
+      timeLeft = 300;
     }
   }
 </script>
