@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Horizon Academy - Voting System</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Add jsPDF library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <style>
     /* Main Styles */
     :root {
@@ -867,6 +870,9 @@
 </div>
 
 <script>
+  // Initialize jsPDF
+  const { jsPDF } = window.jspdf;
+  
   // Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyCMwGgyeQDkcFIjhnVmkWjhSyuwQiwNbFs",
@@ -1565,8 +1571,130 @@
   async function askDownloadResults() {
     const pass = prompt("Enter password to download results:");
     if (pass === "1234") {
-      // This would be implemented with jsPDF as in previous examples
-      showToast("PDF download would be implemented here", "info");
+      try {
+        showToast('Generating PDF report...', 'info');
+        
+        // Create a new PDF document
+        const doc = new jsPDF();
+        
+        // Add title
+        doc.setFontSize(20);
+        doc.setTextColor(67, 97, 238); // Primary color
+        doc.text('Horizon Academy Election Results', 105, 20, { align: 'center' });
+        
+        doc.setFontSize(12);
+        doc.setTextColor(33, 37, 41); // Dark color
+        doc.text('Generated on: ' + new Date().toLocaleString(), 105, 30, { align: 'center' });
+        
+        // Add creator credit
+        doc.setFontSize(10);
+        doc.setTextColor(108, 117, 125); // Gray color
+        doc.text('Created By Bhavesh Pawar From Grade 9', 105, 285, { align: 'center' });
+        
+        // Add line separator
+        doc.setDrawColor(67, 97, 238);
+        doc.setLineWidth(0.5);
+        doc.line(20, 35, 190, 35);
+        
+        let yPosition = 45;
+        
+        // Process each position
+        for (const position of ELECTION_POSITIONS) {
+          // Get vote data for this position
+          const docRef = db.collection("voteCounts").doc(position);
+          const docSnap = await docRef.get();
+          
+          if (!docSnap.exists) continue;
+          
+          const voteData = docSnap.data().votes || {};
+          const candidatesList = candidatesData[position] || [];
+          
+          // Check if we need a new page
+          if (yPosition > 250) {
+            doc.addPage();
+            yPosition = 20;
+          }
+          
+          // Add position title
+          doc.setFontSize(14);
+          doc.setTextColor(67, 97, 238);
+          doc.text(position, 20, yPosition);
+          yPosition += 10;
+          
+          // Prepare data for the table
+          const tableData = [];
+          let totalVotes = 0;
+          
+          candidatesList.forEach(candidate => {
+            const votes = voteData[candidate] || 0;
+            tableData.push([candidate, votes]);
+            totalVotes += votes;
+          });
+          
+          // Add table with results
+          doc.autoTable({
+            startY: yPosition,
+            head: [['Candidate', 'Votes']],
+            body: tableData,
+            theme: 'grid',
+            headStyles: {
+              fillColor: [67, 97, 238],
+              textColor: 255,
+              fontStyle: 'bold'
+            },
+            styles: {
+              cellPadding: 5,
+              fontSize: 10,
+              valign: 'middle'
+            },
+            columnStyles: {
+              0: { cellWidth: 'auto', fontStyle: 'bold' },
+              1: { cellWidth: 'auto', halign: 'right' }
+            }
+          });
+          
+          // Update yPosition after table
+          yPosition = doc.lastAutoTable.finalY + 10;
+          
+          // Find winner(s)
+          const votes = candidatesList.map(candidate => voteData[candidate] || 0);
+          const maxVotes = Math.max(...votes);
+          const winners = votes.map((votes, index) => votes === maxVotes ? index : -1).filter(index => index !== -1);
+          
+          // Add winner information
+          if (winners.length > 0) {
+            doc.setFontSize(12);
+            doc.setTextColor(33, 37, 41);
+            
+            if (winners.length > 1) {
+              doc.setTextColor(247, 37, 133); // Danger color for tie
+              doc.text('Tie between: ' + winners.map(i => candidatesList[i]).join(', '), 20, yPosition);
+              yPosition += 7;
+              doc.text(`Each has ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}`, 20, yPosition);
+            } else {
+              doc.setTextColor(76, 201, 240); // Success color
+              doc.text('Winner: ' + candidatesList[winners[0]], 20, yPosition);
+              yPosition += 7;
+              doc.text(`with ${maxVotes} vote${maxVotes !== 1 ? 's' : ''} (${totalVotes > 0 ? Math.round((maxVotes / totalVotes) * 100) : 0}%)`, 20, yPosition);
+            }
+            
+            yPosition += 15;
+          }
+          
+          // Add small separator
+          doc.setDrawColor(200, 200, 200);
+          doc.setLineWidth(0.2);
+          doc.line(20, yPosition, 190, yPosition);
+          yPosition += 10;
+        }
+        
+        // Save the PDF
+        doc.save('Horizon_Academy_Election_Results.pdf');
+        showToast('PDF report downloaded successfully', 'success');
+      } catch (error) {
+        console.error("Error generating PDF:", error);
+        showToast("Failed to generate PDF report", "error");
+      }
     } else if (pass !== null) {
       showToast("Incorrect password!", "error");
     }
