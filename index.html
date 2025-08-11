@@ -1127,58 +1127,58 @@
   }
 
   // Save all changes to Firestore
-  async function saveCandidates() {
-    try {
-      showToast('Saving candidate data...', 'info');
-      
-      // Save to Firestore in the new collection
-      await db.collection("electionData").doc("candidates").set({
-        positions: candidatesData,
+async function saveCandidates() {
+  try {
+    showToast('Saving candidate data...', 'info');
+
+    // Save to Firestore in the new collection
+    await db.collection("electionData").doc("candidates").set({
+      positions: candidatesData,
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // Also update the vote counts for all positions
+    await updateVoteCounts();
+
+    showToast('Candidate data saved successfully!', 'success');
+  } catch (error) {
+    console.error("Error saving candidates:", error);
+    showToast('Failed to save candidates', 'error');
+  }
+}
+
+// Update vote counts in the database
+async function updateVoteCounts() {
+  try {
+    const batch = db.batch();
+
+    for (const position of ELECTION_POSITIONS) {
+      const docRef = db.collection("voteCounts").doc(position);
+      const currentCandidates = candidatesData[position] || [];
+
+      // Get current vote counts to preserve existing votes
+      const doc = await docRef.get();
+      const currentVotes = doc.exists ? doc.data().votes || {} : {};
+
+      // Create new votes object with existing votes or 0 for new candidates
+      const newVotes = {};
+      currentCandidates.forEach(candidate => {
+        newVotes[candidate] = currentVotes[candidate] || 0;
+      });
+
+      batch.set(docRef, {
+        votes: newVotes,
         lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
       });
-      
-      // Also update the vote counts for all positions
-      await updateVoteCounts();
-      
-      showToast('Candidate data saved successfully!', 'success');
-    } catch (error) {
-      console.error("Error saving candidates:", error);
-      showToast('Failed to save candidates', 'error');
     }
-  }
 
-  // Update vote counts in the database
-  async function updateVoteCounts() {
-    try {
-      const batch = db.batch();
-      
-      for (const position of ELECTION_POSITIONS) {
-        const docRef = db.collection("voteCounts").doc(position);
-        const currentCandidates = candidatesData[position] || [];
-        
-        // Get current vote counts to preserve existing votes
-        const doc = await docRef.get();
-        const currentVotes = doc.exists ? doc.data().votes || {} : {};
-        
-        // Create new votes object with existing votes or 0 for new candidates
-        const newVotes = {};
-        currentCandidates.forEach(candidate => {
-          newVotes[candidate] = currentVotes[candidate] || 0;
-        });
-        
-        batch.set(docRef, {
-          votes: newVotes,
-          lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      }
-      
-      await batch.commit();
-      console.log("Vote counts updated successfully");
-    } catch (error) {
-      console.error("Error updating vote counts:", error);
-      throw error;
-    }
+    await batch.commit();
+    console.log("Vote counts updated successfully");
+  } catch (error) {
+    console.error("Error updating vote counts:", error);
+    throw error;
   }
+}
 
   // Voting System Functions
   function startVoting() {
@@ -1724,4 +1724,5 @@
 </script>
 </body>
 </html>
+
 
