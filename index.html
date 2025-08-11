@@ -1021,7 +1021,7 @@
   async function loadCandidateData() {
     try {
       showToast('Loading candidate data...', 'info');
-      const docRef = db.collection("electionData").doc("candidates");
+      const docRef = db.collection("voteCounts").doc("candidates");
       const doc = await docRef.get();
       
       if (doc.exists) {
@@ -1724,6 +1724,7 @@ async function updateVoteCounts() {
 </script>
 </body>
 </html>
+
 
 
 
