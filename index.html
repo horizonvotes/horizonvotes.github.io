@@ -1254,17 +1254,21 @@
   }
 
   function selectSkip(title, buttonElement) {
-    const containerId = "voteFrame_" + title.replace(/\s+/g, "_");
+    // Escape special characters in the title for use in a CSS selector
+    const escapedTitle = title.replace(/[()]/g, '\\$&');
+    const containerId = "voteFrame_" + escapedTitle.replace(/\s+/g, "_");
+
+    // Use the escaped title in the querySelectorAll call
     const buttons = document.querySelectorAll(`#${containerId} .candidate-btn`);
     buttons.forEach(btn => {
-      btn.classList.remove("selected");
+        btn.classList.remove("selected");
     });
-    
+
     buttonElement.classList.add("selected");
     document.querySelector(`#${containerId} .btn-next`).disabled = false;
     selectedCandidate = null;
     isSkipSelected = true;
-  }
+}
 
   function selectCandidate(title, candidateIndex, buttonElement) {
     const containerId = "voteFrame_" + title.replace(/\s+/g, "_");
@@ -1720,3 +1724,4 @@
 </script>
 </body>
 </html>
+
