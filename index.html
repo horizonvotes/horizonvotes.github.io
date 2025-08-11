@@ -1126,13 +1126,13 @@
     );
   }
 
-  // Save all changes to Firestore
+ // Save all changes to Firestore
 async function saveCandidates() {
   try {
     showToast('Saving candidate data...', 'info');
 
-    // Save to Firestore in the new collection
-    await db.collection("electionData").doc("candidates").set({
+    // Save to Firestore in the voteCounts collection
+    await db.collection("voteCounts").doc("candidates").set({
       positions: candidatesData,
       lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
     });
@@ -1724,5 +1724,6 @@ async function updateVoteCounts() {
 </script>
 </body>
 </html>
+
 
 
