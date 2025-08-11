@@ -1253,13 +1253,14 @@ async function updateVoteCounts() {
     div.classList.remove("hidden");
   }
 
-  function selectSkip(title, buttonElement) {
+ function selectSkip(title, buttonElement) {
     // Escape special characters in the title for use in a CSS selector
     const escapedTitle = title.replace(/[()]/g, '\\$&');
     const containerId = "voteFrame_" + escapedTitle.replace(/\s+/g, "_");
 
     // Use the escaped title in the querySelectorAll call
     const buttons = document.querySelectorAll(`#${containerId} .candidate-btn`);
+
     buttons.forEach(btn => {
         btn.classList.remove("selected");
     });
@@ -1270,20 +1271,27 @@ async function updateVoteCounts() {
     isSkipSelected = true;
 }
 
-  function selectCandidate(title, candidateIndex, buttonElement) {
-    const containerId = "voteFrame_" + title.replace(/\s+/g, "_");
+
+function selectCandidate(title, candidateIndex, buttonElement) {
+    // Escape special characters in the title for use in a CSS selector
+    const escapedTitle = title.replace(/[()]/g, '\\$&');
+    const containerId = "voteFrame_" + escapedTitle.replace(/\s+/g, "_");
+
+    // Use the escaped title in the querySelectorAll call
     const buttons = document.querySelectorAll(`#${containerId} .candidate-btn`);
+
     buttons.forEach(btn => {
-      btn.classList.remove("selected");
+        btn.classList.remove("selected");
     });
-    
+
     document.querySelector(`#${containerId} .btn-skip`).classList.remove("selected");
-    
+
     buttonElement.classList.add("selected");
     document.querySelector(`#${containerId} .btn-next`).disabled = false;
     selectedCandidate = { title, candidateIndex };
     isSkipSelected = false;
-  }
+}
+
 
   async function proceedToNext(title) {
     if (isSkipSelected) {
@@ -1724,6 +1732,7 @@ async function updateVoteCounts() {
 </script>
 </body>
 </html>
+
 
 
 
