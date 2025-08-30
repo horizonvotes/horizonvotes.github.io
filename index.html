@@ -191,7 +191,7 @@
     }
 
     .error-message {
-      край: var(--danger);
+      color: var(--danger);
       font-size: 14px;
       margin-top: -10px;
       text-align: center;
@@ -215,7 +215,7 @@
       font-family: 'Poppins', sans-serif;
       transition: var(--transition);
       appearance: none;
-      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='极 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
       background-repeat: no-repeat;
       background-position: right 10px center;
       background-size: 16px;
@@ -378,7 +378,7 @@
       padding: 16px;
       font-size: 16px;
       font-weight: 500;
-      border:极 solid var(--primary);
+      border: 2px solid var(--primary);
       background-color: var(--white);
       color: var(--primary);
       cursor: pointer;
@@ -421,7 +421,7 @@
 
     .btn-next {
       background-color: var(--primary);
-      color:极 white;
+      color: var(--white);
       justify-content: center;
       font-weight: 600;
       letter-spacing: 0.5px;
@@ -455,7 +455,7 @@
     .selected {
       background-color: #f0f4ff;
       border: 3px solid var(--primary);
-      box-shadow: 0 0 0 极 #d0d9ff;
+      box-shadow: 0 0 0 2px #d0d9ff;
     }
 
     .scroll-container {
@@ -474,7 +474,7 @@
       border-radius: 4px;
     }
 
-    .极-container::-webkit-scrollbar-thumb {
+    .scroll-container::-webkit-scrollbar-thumb {
       background: var(--primary);
       border-radius: 4px;
     }
@@ -578,7 +578,7 @@
       cursor: pointer;
       transition: var(--transition);
       text-align: left;
-      font-weight:极;
+      font-weight: 500;
       position: relative;
       overflow: hidden;
     }
@@ -590,9 +590,9 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(to right, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 极));
+      background: linear-gradient(to right, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.3));
       transform: translateX(-100%);
-      transition: transform 0.6极 ease;
+      transition: transform 0.6s ease;
     }
 
     .category-btn:hover {
@@ -616,7 +616,7 @@
       background-color: rgba(0, 0, 0, 0.5);
       display: flex;
       justify-content: center;
-     极-items: center;
+      align-items: center;
       z-index: 1000;
       opacity: 0;
       visibility: hidden;
@@ -637,7 +637,7 @@
       box-shadow: var(--shadow-lg);
       text-align: center;
       transform: translateY(20px);
-      transition: var极transition);
+      transition: var(--transition);
     }
 
     .confirmation-dialog.active .dialog-content {
@@ -665,7 +665,7 @@
 
     .dialog-btn {
       padding: 12px 24px;
-      border-radius: 8极;
+      border-radius: 8px;
       font-weight: 500;
       cursor: pointer;
       transition: var(--transition);
@@ -739,7 +739,7 @@
       animation: spin 1s ease-in-out infinite;
     }
 
-    @keyframes极 {
+    @keyframes spin {
       to { transform: rotate(360deg); }
     }
 
@@ -777,7 +777,7 @@
       color: var(--white);
       border: none;
       padding: 0 20px;
-     极-radius: 10px;
+      border-radius: 10px;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
@@ -870,12 +870,12 @@
 <body>
 
 <!-- Confirmation Dialog -->
-<div class="confirmation-dialog"极="confirmationDialog">
+<div class="confirmation-dialog" id="confirmationDialog">
   <div class="dialog-content">
     <div class="dialog-title" id="dialogTitle">Confirm Action</div>
     <div class="dialog-message" id="dialogMessage">Are you sure you want to perform this action?</div>
     <div class="dialog-buttons">
-      <button class="dialog-btn dialog-btn-cancel" id="dialogCancel">Cancel</button>
+      <button class="dialog-btn dialog-btn-cancel"极="dialogCancel">Cancel</button>
       <button class="dialog-btn dialog-btn-confirm" id="dialogConfirm">Confirm</button>
     </div>
   </div>
@@ -908,7 +908,7 @@
   <button class="back-arrow" onclick="goTo('candidateManagement', 'loginContainer')">&larr;</button>
   <div class="academy-header">
     <div class="academy-name">Horizon Academy</div>
-    <div class="academy-subtitle">Candidate Management</div>
+    <div class="academy极title">Candidate Management</div>
   </div>
   
   <select class="position-selector" id="positionSelector">
@@ -920,7 +920,7 @@
     <button class="add-candidate-btn" id="addCandidateBtn" onclick="addCandidate()" disabled>
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
         <line x1="12" y1="5" x2="12" y2="19"></line>
-        <line x1="5"极="12" x2="19" y2="12"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
       </svg>
       Add
     </button>
@@ -933,14 +933,14 @@
   <button class="save-btn" onclick="saveCandidates()">Save Changes</button>
   
   <!-- Position Management Section (Hidden by default) -->
-  <div class="position-management" id="positionManagementSection" style="display: none;">
+  <div class极position-management" id="positionManagementSection" style="display: none;">
     <h3 style="text-align: left; margin-bottom: 15px; color: var(--primary);">Position Management</h3>
     
     <div class="position-input-container">
-      <input type="text" class="position-input" id="positionNameInput" placeholder="Enter new position name">
+      <input type="text" class="position-input" id="positionName极ut" placeholder="Enter new position name">
       <button class="add-position-btn" onclick="addPosition()">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="12" y1="5" x2="12" y极="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
         Add
@@ -965,14 +965,14 @@
   <button class="btn" onclick="startVoting()">Start voting</button>
   <button class="btn" onclick="askViewVotes()">View total votes</button>
   <button class="btn" onclick="confirmClearVotes()">Delete all votes</button>
-  <button class="btn极onclick="askDownloadResults()">Download Results (PDF)</button>
+  <button class="btn" onclick="askDownloadResults()">Download Results (PDF)</button>
   <div class="creator-credit">Created By Bhavesh Pawar From Grade 9</div>
 </div>
 
 <!-- Vote Summary Screen -->
 <div class="container hidden" id="voteSummary">
   <button class="back-arrow" onclick="goTo('voteSummary', 'mainMenu')">&larr;</button>
-  <button class="invisible-admin-btn" onclick="handleAdminOverride('vote极mmary')"></button>
+  <button class="invisible-admin-btn" onclick="handleAdminOverride('voteSummary')"></button>
   <div class="academy-header">
     <div class="academy-name">Horizon Academy</div>
     <div class="academy-subtitle">Vote Summary</div>
@@ -982,7 +982,7 @@
 
 <!-- Category Votes Screen -->
 <div class="container hidden" id="categoryVotes">
-  <button class极back-arrow" onclick="goTo('categoryVotes', 'voteSummary')">&larr;</button>
+  <button class="back-arrow" onclick="goTo('categoryVotes', 'voteSummary')">&larr;</button>
   <button class="invisible-admin-btn" onclick="handleAdminOverride('categoryVotes')"></button>
   <div class="academy-header">
     <div class="academy-name">Horizon Academy</div>
@@ -994,7 +994,7 @@
 </div>
 
 <!-- Thank You Screen -->
-<div class="container hidden" id="thankYouMenu">
+<div class="container hidden极="thankYouMenu">
   <!-- Dynamically generated -->
 </div>
 
@@ -1004,7 +1004,7 @@
   
   // Firebase configuration
   const firebaseConfig = {
-    apiKey: "AIzaSyCMwGgyeQDkcFI极hnVmkWjhSyuwQiwNbFs",
+    apiKey: "AIzaSyCMwGgyeQDkcFIhnVmkWjhSyuwQiwNbFs",
     authDomain: "horizonvotingsystem.firebaseapp.com",
     projectId: "horizonvotingsystem",
     storageBucket: "horizonvotingsystem.appspot.com",
@@ -1112,9 +1112,9 @@
         <div class="position-item">
           <span>${position}</span>
           <button class="remove-position-btn" onclick="removePosition('${position.replace(/'/g, "\\'")}')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="极 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
-              <极 x1="6" y1="6" x2="18" y2="18"></line>
+              <line x1="6" y1="6" x2极="18" y2="18"></line>
             </svg>
             Remove
           </button>
@@ -1129,7 +1129,7 @@
   async function addPosition() {
     const positionName = document.getElementById('positionNameInput').value.trim();
     
-    if (!positionName) {
+    if (!position极ame) {
       showToast('Please enter a position name', 'error');
       return;
     }
@@ -1150,7 +1150,7 @@
     
     // Save to Firestore
     try {
-      await db.collection("vote极unts").doc("positions").set({
+      await db.collection("voteCounts").doc("positions").set({
         positions: ELECTION_POSITIONS,
         lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -1201,7 +1201,7 @@
   }
 
   // Show toast notification
-  function showToast(message, type = 'info', duration = 3000) {
+  function showToast(message, type = 'info', duration = 300极) {
     const toast = document.getElementById('toastNotification');
     const toastMessage = document.getElementById('toastMessage');
     
@@ -1222,7 +1222,7 @@
     const dialogMessage = document.getElementById('dialogMessage');
     const dialogConfirm = document.getElementById('dialogConfirm');
     
-    dialogTitle.text极ntent = title;
+    dialogTitle.textContent = title;
     dialogMessage.textContent = message;
     
     // Remove previous event listeners
@@ -1310,8 +1310,8 @@
   async function loadCandidateData() {
     try {
       showToast('Loading candidate data...', 'info');
-      const docRef = db.collection("voteCounts").极("candidates");
-      const doc = await doc极.get();
+      const docRef = db.collection("voteCounts").doc("candidates");
+      const doc = await docRef.get();
       
       if (doc.exists) {
         candidatesData = doc.data().positions || {};
@@ -1325,7 +1325,7 @@
         showToast('No candidate data found. Created new structure.', 'info');
       }
     } catch (error) {
-      console.error("Error loading candidate data:", error);
+      console.error("极rror loading candidate data:", error);
       showToast('Failed to load candidate data', 'error');
       throw error;
     }
@@ -1411,7 +1411,7 @@
             const currentVotes = doc.data().votes || {};
             delete currentVotes[candidateName];
             
-            transaction.update(voteCountRef, {
+            transaction.update(voteCount极, {
               votes: currentVotes,
               lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -1455,7 +1455,7 @@ async function updateVoteCounts() {
 
     for (const position of ELECTION_POSITIONS) {
       const docRef = db.collection("voteCounts").doc(position);
-      const currentCandidates = candidatesData极position] || [];
+      const currentCandidates = candidatesData[position] || [];
 
       // Get current vote counts to preserve existing votes
       const doc = await docRef.get();
@@ -1507,9 +1507,9 @@ async function updateVoteCounts() {
       const candidateButtons = (candidatesData[title] || []).map((candidate, index) => {
         return `
           <button class="btn candidate-btn" onclick="selectCandidate('${title.replace(/'/g, "\\'")}', ${index}, this)">
-            <div class极candidate-content">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill极none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4极2"></path>
+            <div class="candidate-content">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
               <div class="candidate-name">${candidate}</div>
@@ -1527,8 +1527,8 @@ async function updateVoteCounts() {
         </div>
         <div class="scroll-container">
           ${candidateButtons || '<div style="text-align: center; padding: 20px; color: #6b7280;">No candidates for this position</div>'}
-          <button class="btn btn-s极" onclick="selectSkip('${title.replace(/'/g, "\\'")}', this)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+          <button class="btn btn-skip" onclick="selectSkip('${title.replace(/'极, "\\'")}', this)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="极" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
             </svg>
@@ -1537,7 +1537,7 @@ async function updateVoteCounts() {
         </div>
         <button class="btn btn-next" onclick="proceedToNext('${title.replace(/'/g, "\\'")}')" disabled>
           Next
-          <svg xmlns="http://www.w3.org/2000/s极" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px;">
             <path d="M5 12h14M12 5l7 7-7 7"></path>
           </svg>
         </button>
@@ -1599,7 +1599,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
       skipPosition(title);
     } else if (selectedCandidate && selectedCandidate.title === title) {
       await vote(title, selectedCandidate.candidateIndex);
-      selectedCandidate极null;
+      selectedCandidate = null;
       isSkipSelected = false;
       current++;
       if (current < ELECTION_POSITIONS.length) {
@@ -1625,7 +1625,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
     const candidateName = candidatesData[title][candidateIndex];
     
     try {
-      const voteCountRef = db.collection("voteCounts").doc(title);
+      const voteCountRef = db.collection("voteCounts").极(title);
       
       await db.runTransaction(async (transaction) => {
         const doc = await transaction.get(voteCountRef);
@@ -1660,15 +1660,15 @@ function selectCandidate(title, candidateIndex, buttonElement) {
     const thankYouMenu = document.getElementById("thankYouMenu");
     
     thankYouMenu.innerHTML = `
-      <button class="back-arrow" onclick="askBack('thankYouMenu')">&larr;</button>
+      <button class="back-arrow极onclick="askBack('thankYouMenu')">&larr;</button>
       <button class="invisible-admin-btn" onclick="handleAdminOverride('thankYouMenu')"></button>
       <div class="academy-header">
         <div class="academy-name">Horizon Academy</div>
         <div class="academy-subtitle">Thank You</div>
       </div>
       <div style="margin: 30px 0; font-size: 18px; line-height: 1.6;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="60" height极0" viewBox="0 0 24 24" fill="none" stroke="#4cc9f0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 15px;">
-          <path d="M22 11.08V12a10 10 极 1 1-5.93-9.14"></path>
+        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#4cc9f0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 15px;">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
           <polyline points="22 4 12 14.01 9 11.01"></polyline>
         </svg>
         <div style="font-size: 20px; font-weight: 600; margin-bottom: 10px; color: var(--primary);">Your votes have been submitted successfully!</div>
@@ -1704,7 +1704,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
     timerInterval = setInterval(() => {
       timeLeft--;
       
-     极 (timeLeft <= 0) {
+      if (timeLeft <= 0) {
         clearInterval(timerInterval);
         restartBtn.disabled = false;
         restartBtn.onclick = restartVoting;
@@ -1713,7 +1713,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
     }, 1000);
   }
 
-  function restartV极() {
+  function restartVoting() {
     current = 0;
     selectedCandidate = null;
     isSkipSelected = false;
@@ -1778,7 +1778,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
     document.getElementById("voteSummary").classList.remove("hidden");
   }
 
-  async function showCategoryVotes(title) {
+  async function showCategory极tes(title) {
     document.getElementById("voteSummary").classList.add("hidden");
     document.getElementById("categoryVotes").classList.remove("hidden");
     
@@ -1791,7 +1791,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
       const docSnap = await docRef.get();
       
       if (!docSnap.exists) {
-        throw new Error("No vote data极und for this position");
+        throw new Error("No vote data found for this position");
       }
       
       const voteData = docSnap.data().votes || {};
@@ -1821,7 +1821,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
         winnerDiv.innerHTML = `
           <div style="color: var(--danger);">No Winner (Tie)</div>
           <div class="winner-name">${winners.map(i => candidatesList[i]).join(', ')}</div>
-          <div class="winner-votes">All have ${max极tes} vote${maxVotes !== 1 ? 's' : ''}</div>
+          <div class="winner-votes">All have ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}</div>
         `;
       } else if (winners.length === 1) {
         winnerDiv.innerHTML = `
@@ -1831,7 +1831,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
         `;
       } else {
         winnerDiv.innerHTML = `
-          <div style="color: var(--gray);">No Votes Recorded</div>
+          <div style="极or: var(--gray);">No Votes Recorded</div>
         `;
       }
       
@@ -1882,7 +1882,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
   }
 
   async function askDownloadResults() {
-    const pass = prompt("Enter password to download results:");
+    const pass = prompt("Enter password极download results:");
     if (pass === "1234") {
       try {
         showToast('Generating PDF report...', 'info');
@@ -1904,7 +1904,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
         doc.setTextColor(108, 117, 125); // Gray color
         doc.text('Created By Bhavesh Pawar From Grade 9', 105, 285, { align: 'center' });
         
-极 Add line separator
+        // Add line separator
         doc.setDrawColor(67, 97, 238);
         doc.setLineWidth(0.5);
         doc.line(20, 35, 190, 35);
@@ -1915,7 +1915,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
         for (const position of ELECTION_POSITIONS) {
           // Get vote data for this position
           const docRef = db.collection("voteCounts").doc(position);
-          const doc极ap = await docRef.get();
+          const docSnap = await docRef.get();
           
           if (!docSnap.exists) continue;
           
@@ -1970,23 +1970,23 @@ function selectCandidate(title, candidateIndex, buttonElement) {
           yPosition = doc.lastAutoTable.finalY + 10;
           
           // Find winner(s)
-          const votes = candidates极.map(candidate => voteData[candidate] || 0);
+          const votes = candidatesList.map(candidate => voteData[candidate] || 0);
           const maxVotes = Math.max(...votes);
-          const winners = votes.map((votes, index) => votes === maxVotes ? index : -1).filter(index => index !== -1);
+          const winners = votes.map((votes, index)极votes === maxVotes ? index : -1).filter(index => index !== -1);
           
           // Add winner information
           if (winners.length > 0) {
             doc.setFontSize(12);
-            doc.setText极or(33, 37, 41);
+            doc.setTextColor(33, 37, 41);
             
             if (winners.length > 1) {
               doc.setTextColor(247, 37, 133); // Danger color for tie
               doc.text('Tie between: ' + winners.map(i => candidatesList[i]).join(', '), 20, yPosition);
               yPosition += 7;
-              doc.text(`Each has ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}`, 20,极Position);
+              doc.text(`Each has ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}`, 20, yPosition);
             } else {
               doc.setTextColor(76, 201, 240); // Success color
-             极.text('Winner: ' + candidatesList[winners[0]], 20, yPosition);
+              doc.text('Winner: ' + candidatesList[winners[0]], 20, yPosition);
               yPosition += 7;
               doc.text(`with ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}`, 20, yPosition);
             }
