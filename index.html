@@ -1147,14 +1147,15 @@
           errorElement.textContent = 'Failed to load voting data. Please try again.';
           document.getElementById('loginContainer').classList.remove('hidden');
         });
-      } else if (passwordInput.toLowerCase() === 'data') {
+      }
+      else if (passwordInput.toLowerCase() === 'data') {
         // Successful login to candidate management
         currentLoginType = 'data';
         document.getElementById('loginContainer').classList.add('hidden');
         loadCandidateData().then(() => {
           document.getElementById('candidateManagement').classList.remove('hidden');
           updateCandidateList();
-          // Hide position management section for regular data login
+          // Hide position management section for 'data' login
           document.getElementById('positionManagementSection').style.display = 'none';
           // Enable candidate management features
           document.getElementById('candidateNameInput').disabled = false;
@@ -1164,14 +1165,15 @@
           errorElement.textContent = 'Failed to load candidate data. Please try again.';
           document.getElementById('loginContainer').classList.remove('hidden');
         });
-      } else if (passwordInput.toLowerCase() === 'field') {
-        // Successful login to candidate management with position editing
+      }
+      else if (passwordInput.toLowerCase() === 'field') {
+        // Successful login to position management
         currentLoginType = 'field';
         document.getElementById('loginContainer').classList.add('hidden');
         loadCandidateData().then(() => {
           document.getElementById('candidateManagement').classList.remove('hidden');
           updateCandidateList();
-          // Show position management section
+          // Show position management section for 'field' login
           document.getElementById('positionManagementSection').style.display = 'block';
           // Disable candidate management features
           document.getElementById('candidateNameInput').disabled = true;
@@ -1181,7 +1183,8 @@
           errorElement.textContent = 'Failed to load candidate data. Please try again.';
           document.getElementById('loginContainer').classList.remove('hidden');
         });
-      } else {
+      }
+      else {
         // Failed login
         errorElement.textContent = 'Incorrect password. Please try again.';
       }
