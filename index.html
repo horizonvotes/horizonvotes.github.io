@@ -191,7 +191,7 @@
     }
 
     .error-message {
-      color: var(--danger);
+      край: var(--danger);
       font-size: 14px;
       margin-top: -10px;
       text-align: center;
@@ -215,7 +215,7 @@
       font-family: 'Poppins', sans-serif;
       transition: var(--transition);
       appearance: none;
-      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='极 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
       background-repeat: no-repeat;
       background-position: right 10px center;
       background-size: 16px;
@@ -273,6 +273,13 @@
 
     .add-candidate-btn:active {
       transform: translateY(0);
+    }
+
+    .add-candidate-btn:disabled {
+      background-color: var(--light-gray);
+      color: var(--gray);
+      cursor: not-allowed;
+      opacity: 0.7;
     }
 
     .candidate-list {
@@ -371,7 +378,7 @@
       padding: 16px;
       font-size: 16px;
       font-weight: 500;
-      border: 2px solid var(--primary);
+      border:极 solid var(--primary);
       background-color: var(--white);
       color: var(--primary);
       cursor: pointer;
@@ -414,7 +421,7 @@
 
     .btn-next {
       background-color: var(--primary);
-      color: var(--white);
+      color:极 white;
       justify-content: center;
       font-weight: 600;
       letter-spacing: 0.5px;
@@ -448,7 +455,7 @@
     .selected {
       background-color: #f0f4ff;
       border: 3px solid var(--primary);
-      box-shadow: 0 0 0 2px #d0d9ff;
+      box-shadow: 0 0 0 极 #d0d9ff;
     }
 
     .scroll-container {
@@ -467,7 +474,7 @@
       border-radius: 4px;
     }
 
-    .scroll-container::-webkit-scrollbar-thumb {
+    .极-container::-webkit-scrollbar-thumb {
       background: var(--primary);
       border-radius: 4px;
     }
@@ -571,7 +578,7 @@
       cursor: pointer;
       transition: var(--transition);
       text-align: left;
-      font-weight: 500;
+      font-weight:极;
       position: relative;
       overflow: hidden;
     }
@@ -583,9 +590,9 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(to right, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.3));
+      background: linear-gradient(to right, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 极));
       transform: translateX(-100%);
-      transition: transform 0.6s ease;
+      transition: transform 0.6极 ease;
     }
 
     .category-btn:hover {
@@ -609,7 +616,7 @@
       background-color: rgba(0, 0, 0, 0.5);
       display: flex;
       justify-content: center;
-      align-items: center;
+     极-items: center;
       z-index: 1000;
       opacity: 0;
       visibility: hidden;
@@ -630,7 +637,7 @@
       box-shadow: var(--shadow-lg);
       text-align: center;
       transform: translateY(20px);
-      transition: var(--transition);
+      transition: var极transition);
     }
 
     .confirmation-dialog.active .dialog-content {
@@ -658,7 +665,7 @@
 
     .dialog-btn {
       padding: 12px 24px;
-      border-radius: 8px;
+      border-radius: 8极;
       font-weight: 500;
       cursor: pointer;
       transition: var(--transition);
@@ -732,7 +739,7 @@
       animation: spin 1s ease-in-out infinite;
     }
 
-    @keyframes spin {
+    @keyframes极 {
       to { transform: rotate(360deg); }
     }
 
@@ -770,7 +777,7 @@
       color: var(--white);
       border: none;
       padding: 0 20px;
-      border-radius: 10px;
+     极-radius: 10px;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
@@ -863,7 +870,7 @@
 <body>
 
 <!-- Confirmation Dialog -->
-<div class="confirmation-dialog" id="confirmationDialog">
+<div class="confirmation-dialog"极="confirmationDialog">
   <div class="dialog-content">
     <div class="dialog-title" id="dialogTitle">Confirm Action</div>
     <div class="dialog-message" id="dialogMessage">Are you sure you want to perform this action?</div>
@@ -909,11 +916,11 @@
   </select>
   
   <div class="candidate-input-container">
-    <input type="text" class="candidate-input" id="candidateNameInput" placeholder="Enter candidate name">
-    <button class="add-candidate-btn" onclick="addCandidate()">
+    <input type="text" class="candidate-input" id="candidateNameInput" placeholder="Enter candidate name" disabled>
+    <button class="add-candidate-btn" id="addCandidateBtn" onclick="addCandidate()" disabled>
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
         <line x1="12" y1="5" x2="12" y2="19"></line>
-        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <line x1="5"极="12" x2="19" y2="12"></line>
       </svg>
       Add
     </button>
@@ -958,14 +965,14 @@
   <button class="btn" onclick="startVoting()">Start voting</button>
   <button class="btn" onclick="askViewVotes()">View total votes</button>
   <button class="btn" onclick="confirmClearVotes()">Delete all votes</button>
-  <button class="btn" onclick="askDownloadResults()">Download Results (PDF)</button>
+  <button class="btn极onclick="askDownloadResults()">Download Results (PDF)</button>
   <div class="creator-credit">Created By Bhavesh Pawar From Grade 9</div>
 </div>
 
 <!-- Vote Summary Screen -->
 <div class="container hidden" id="voteSummary">
   <button class="back-arrow" onclick="goTo('voteSummary', 'mainMenu')">&larr;</button>
-  <button class="invisible-admin-btn" onclick="handleAdminOverride('voteSummary')"></button>
+  <button class="invisible-admin-btn" onclick="handleAdminOverride('vote极mmary')"></button>
   <div class="academy-header">
     <div class="academy-name">Horizon Academy</div>
     <div class="academy-subtitle">Vote Summary</div>
@@ -975,7 +982,7 @@
 
 <!-- Category Votes Screen -->
 <div class="container hidden" id="categoryVotes">
-  <button class="back-arrow" onclick="goTo('categoryVotes', 'voteSummary')">&larr;</button>
+  <button class极back-arrow" onclick="goTo('categoryVotes', 'voteSummary')">&larr;</button>
   <button class="invisible-admin-btn" onclick="handleAdminOverride('categoryVotes')"></button>
   <div class="academy-header">
     <div class="academy-name">Horizon Academy</div>
@@ -997,7 +1004,7 @@
   
   // Firebase configuration
   const firebaseConfig = {
-    apiKey: "AIzaSyCMwGgyeQDkcFIjhnVmkWjhSyuwQiwNbFs",
+    apiKey: "AIzaSyCMwGgyeQDkcFI极hnVmkWjhSyuwQiwNbFs",
     authDomain: "horizonvotingsystem.firebaseapp.com",
     projectId: "horizonvotingsystem",
     storageBucket: "horizonvotingsystem.appspot.com",
@@ -1019,6 +1026,7 @@
   let isSkipSelected = false;
   let timerInterval;
   let timeLeft = 300; // 5 minutes in seconds
+  let currentLoginType = ''; // Track the current login type
 
   // Initialize the app
   document.addEventListener('DOMContentLoaded', function() {
@@ -1104,9 +1112,9 @@
         <div class="position-item">
           <span>${position}</span>
           <button class="remove-position-btn" onclick="removePosition('${position.replace(/'/g, "\\'")}')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="极 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
+              <极 x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
             Remove
           </button>
@@ -1142,7 +1150,7 @@
     
     // Save to Firestore
     try {
-      await db.collection("voteCounts").doc("positions").set({
+      await db.collection("vote极unts").doc("positions").set({
         positions: ELECTION_POSITIONS,
         lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -1214,7 +1222,7 @@
     const dialogMessage = document.getElementById('dialogMessage');
     const dialogConfirm = document.getElementById('dialogConfirm');
     
-    dialogTitle.textContent = title;
+    dialogTitle.text极ntent = title;
     dialogMessage.textContent = message;
     
     // Remove previous event listeners
@@ -1249,6 +1257,7 @@
 
     if (passwordInput.toLowerCase() === 'horizon') {
       // Successful login to main voting panel
+      currentLoginType = 'horizon';
       document.getElementById('loginContainer').classList.add('hidden');
       loadCandidateData().then(() => {
         document.getElementById('mainMenu').classList.remove('hidden');
@@ -1259,12 +1268,16 @@
       });
     } else if (passwordInput.toLowerCase() === 'data') {
       // Successful login to candidate management
+      currentLoginType = 'data';
       document.getElementById('loginContainer').classList.add('hidden');
       loadCandidateData().then(() => {
         document.getElementById('candidateManagement').classList.remove('hidden');
         updateCandidateList();
         // Hide position management section for regular data login
         document.getElementById('positionManagementSection').style.display = 'none';
+        // Enable candidate management features
+        document.getElementById('candidateNameInput').disabled = false;
+        document.getElementById('addCandidateBtn').disabled = false;
       }).catch(error => {
         console.error("Error loading candidate data:", error);
         errorElement.textContent = 'Failed to load candidate data. Please try again.';
@@ -1272,12 +1285,16 @@
       });
     } else if (passwordInput.toLowerCase() === 'field') {
       // Successful login to candidate management with position editing
+      currentLoginType = 'field';
       document.getElementById('loginContainer').classList.add('hidden');
       loadCandidateData().then(() => {
         document.getElementById('candidateManagement').classList.remove('hidden');
         updateCandidateList();
         // Show position management section
         document.getElementById('positionManagementSection').style.display = 'block';
+        // Disable candidate management features
+        document.getElementById('candidateNameInput').disabled = true;
+        document.getElementById('addCandidateBtn').disabled = true;
       }).catch(error => {
         console.error("Error loading candidate data:", error);
         errorElement.textContent = 'Failed to load candidate data. Please try again.';
@@ -1293,8 +1310,8 @@
   async function loadCandidateData() {
     try {
       showToast('Loading candidate data...', 'info');
-      const docRef = db.collection("voteCounts").doc("candidates");
-      const doc = await docRef.get();
+      const docRef = db.collection("voteCounts").极("candidates");
+      const doc = await doc极.get();
       
       if (doc.exists) {
         candidatesData = doc.data().positions || {};
@@ -1323,7 +1340,7 @@
       candidateList.innerHTML = candidatesData[position].map(candidate => `
         <div class="candidate-item">
           <span>${candidate}</span>
-          <button class="remove-candidate-btn" onclick="removeCandidate('${position.replace(/'/g, "\\'")}', '${candidate.replace(/'/g, "\\'")}')">
+          <button class="remove-candidate-btn" onclick="removeCandidate('${position.replace(/'/g, "\\'")}', '${candidate.replace(/'/g, "\\'")}')" ${currentLoginType === 'field' ? 'disabled' : ''}>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap='round' stroke-linejoin='round'>
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -1339,6 +1356,12 @@
 
   // Add a new candidate
   function addCandidate() {
+    // Prevent adding candidates when logged in with 'field' password
+    if (currentLoginType === 'field') {
+      showToast('Cannot add candidates in field mode', 'error');
+      return;
+    }
+    
     const position = document.getElementById('positionSelector').value;
     const candidateName = document.getElementById('candidateNameInput').value.trim();
     
@@ -1365,6 +1388,12 @@
 
   // Remove a candidate
   function removeCandidate(position, candidateName) {
+    // Prevent removing candidates when logged in with 'field' password
+    if (currentLoginType === 'field') {
+      showToast('Cannot remove candidates in field mode', 'error');
+      return;
+    }
+    
     showConfirmationDialog(
       'Remove Candidate',
       `Are you sure you want to remove ${candidateName} from ${position}? This will also remove all their votes.`,
@@ -1426,7 +1455,7 @@ async function updateVoteCounts() {
 
     for (const position of ELECTION_POSITIONS) {
       const docRef = db.collection("voteCounts").doc(position);
-      const currentCandidates = candidatesData[position] || [];
+      const currentCandidates = candidatesData极position] || [];
 
       // Get current vote counts to preserve existing votes
       const doc = await docRef.get();
@@ -1478,9 +1507,9 @@ async function updateVoteCounts() {
       const candidateButtons = (candidatesData[title] || []).map((candidate, index) => {
         return `
           <button class="btn candidate-btn" onclick="selectCandidate('${title.replace(/'/g, "\\'")}', ${index}, this)">
-            <div class="candidate-content">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <div class极candidate-content">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill极none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4极2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
               <div class="candidate-name">${candidate}</div>
@@ -1498,7 +1527,7 @@ async function updateVoteCounts() {
         </div>
         <div class="scroll-container">
           ${candidateButtons || '<div style="text-align: center; padding: 20px; color: #6b7280;">No candidates for this position</div>'}
-          <button class="btn btn-skip" onclick="selectSkip('${title.replace(/'/g, "\\'")}', this)">
+          <button class="btn btn-s极" onclick="selectSkip('${title.replace(/'/g, "\\'")}', this)">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
@@ -1508,7 +1537,7 @@ async function updateVoteCounts() {
         </div>
         <button class="btn btn-next" onclick="proceedToNext('${title.replace(/'/g, "\\'")}')" disabled>
           Next
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px;">
+          <svg xmlns="http://www.w3.org/2000/s极" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px;">
             <path d="M5 12h14M12 5l7 7-7 7"></path>
           </svg>
         </button>
@@ -1570,7 +1599,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
       skipPosition(title);
     } else if (selectedCandidate && selectedCandidate.title === title) {
       await vote(title, selectedCandidate.candidateIndex);
-      selectedCandidate = null;
+      selectedCandidate极null;
       isSkipSelected = false;
       current++;
       if (current < ELECTION_POSITIONS.length) {
@@ -1638,8 +1667,8 @@ function selectCandidate(title, candidateIndex, buttonElement) {
         <div class="academy-subtitle">Thank You</div>
       </div>
       <div style="margin: 30px 0; font-size: 18px; line-height: 1.6;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#4cc9f0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 15px;">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <svg xmlns="http://www.w3.org/2000/svg" width="60" height极0" viewBox="0 0 24 24" fill="none" stroke="#4cc9f0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 15px;">
+          <path d="M22 11.08V12a10 10 极 1 1-5.93-9.14"></path>
           <polyline points="22 4 12 14.01 9 11.01"></polyline>
         </svg>
         <div style="font-size: 20px; font-weight: 600; margin-bottom: 10px; color: var(--primary);">Your votes have been submitted successfully!</div>
@@ -1675,7 +1704,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
     timerInterval = setInterval(() => {
       timeLeft--;
       
-      if (timeLeft <= 0) {
+     极 (timeLeft <= 0) {
         clearInterval(timerInterval);
         restartBtn.disabled = false;
         restartBtn.onclick = restartVoting;
@@ -1684,7 +1713,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
     }, 1000);
   }
 
-  function restartVoting() {
+  function restartV极() {
     current = 0;
     selectedCandidate = null;
     isSkipSelected = false;
@@ -1762,7 +1791,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
       const docSnap = await docRef.get();
       
       if (!docSnap.exists) {
-        throw new Error("No vote data found for this position");
+        throw new Error("No vote data极und for this position");
       }
       
       const voteData = docSnap.data().votes || {};
@@ -1792,7 +1821,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
         winnerDiv.innerHTML = `
           <div style="color: var(--danger);">No Winner (Tie)</div>
           <div class="winner-name">${winners.map(i => candidatesList[i]).join(', ')}</div>
-          <div class="winner-votes">All have ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}</div>
+          <div class="winner-votes">All have ${max极tes} vote${maxVotes !== 1 ? 's' : ''}</div>
         `;
       } else if (winners.length === 1) {
         winnerDiv.innerHTML = `
@@ -1875,7 +1904,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
         doc.setTextColor(108, 117, 125); // Gray color
         doc.text('Created By Bhavesh Pawar From Grade 9', 105, 285, { align: 'center' });
         
-        // Add line separator
+极 Add line separator
         doc.setDrawColor(67, 97, 238);
         doc.setLineWidth(0.5);
         doc.line(20, 35, 190, 35);
@@ -1886,7 +1915,7 @@ function selectCandidate(title, candidateIndex, buttonElement) {
         for (const position of ELECTION_POSITIONS) {
           // Get vote data for this position
           const docRef = db.collection("voteCounts").doc(position);
-          const docSnap = await docRef.get();
+          const doc极ap = await docRef.get();
           
           if (!docSnap.exists) continue;
           
@@ -1941,23 +1970,23 @@ function selectCandidate(title, candidateIndex, buttonElement) {
           yPosition = doc.lastAutoTable.finalY + 10;
           
           // Find winner(s)
-          const votes = candidatesList.map(candidate => voteData[candidate] || 0);
+          const votes = candidates极.map(candidate => voteData[candidate] || 0);
           const maxVotes = Math.max(...votes);
           const winners = votes.map((votes, index) => votes === maxVotes ? index : -1).filter(index => index !== -1);
           
           // Add winner information
           if (winners.length > 0) {
             doc.setFontSize(12);
-            doc.setTextColor(33, 37, 41);
+            doc.setText极or(33, 37, 41);
             
             if (winners.length > 1) {
               doc.setTextColor(247, 37, 133); // Danger color for tie
               doc.text('Tie between: ' + winners.map(i => candidatesList[i]).join(', '), 20, yPosition);
               yPosition += 7;
-              doc.text(`Each has ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}`, 20, yPosition);
+              doc.text(`Each has ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}`, 20,极Position);
             } else {
               doc.setTextColor(76, 201, 240); // Success color
-              doc.text('Winner: ' + candidatesList[winners[0]], 20, yPosition);
+             极.text('Winner: ' + candidatesList[winners[0]], 20, yPosition);
               yPosition += 7;
               doc.text(`with ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}`, 20, yPosition);
             }
