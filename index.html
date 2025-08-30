@@ -805,7 +805,7 @@
       <!-- Positions populated from code -->
     </select>
 
-    <div class="candidate-input-container">
+    <div class="candidate-input-container" id="candidateInputContainer">
       <input type="text" class="candidate-input" id="candidateNameInput" placeholder="Enter candidate name" disabled>
       <button class="add-candidate-btn" id="addCandidateBtn" onclick="addCandidate()" disabled>
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
@@ -1160,6 +1160,8 @@
           // Enable candidate management features
           document.getElementById('candidateNameInput').disabled = false;
           document.getElementById('addCandidateBtn').disabled = false;
+          // Show candidate input container
+          document.getElementById('candidateInputContainer').style.display = 'flex';
         }).catch(error => {
           console.error("Error loading candidate data:", error);
           errorElement.textContent = 'Failed to load candidate data. Please try again.';
@@ -1178,6 +1180,8 @@
           // Disable candidate management features
           document.getElementById('candidateNameInput').disabled = true;
           document.getElementById('addCandidateBtn').disabled = true;
+          // Hide candidate input container
+          document.getElementById('candidateInputContainer').style.display = 'none';
         }).catch(error => {
           console.error("Error loading candidate data:", error);
           errorElement.textContent = 'Failed to load candidate data. Please try again.';
