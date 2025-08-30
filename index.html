@@ -1162,6 +1162,10 @@
           document.getElementById('addCandidateBtn').disabled = false;
           // Show candidate input container
           document.getElementById('candidateInputContainer').style.display = 'flex';
+          // Show candidate list
+          document.getElementById('candidateList').style.display = 'block';
+          // Show save button
+          document.querySelector('.save-btn').style.display = 'block';
         }).catch(error => {
           console.error("Error loading candidate data:", error);
           errorElement.textContent = 'Failed to load candidate data. Please try again.';
@@ -1182,6 +1186,10 @@
           document.getElementById('addCandidateBtn').disabled = true;
           // Hide candidate input container
           document.getElementById('candidateInputContainer').style.display = 'none';
+          // Hide candidate list
+          document.getElementById('candidateList').style.display = 'none';
+          // Hide save button
+          document.querySelector('.save-btn').style.display = 'none';
         }).catch(error => {
           console.error("Error loading candidate data:", error);
           errorElement.textContent = 'Failed to load candidate data. Please try again.';
@@ -1231,7 +1239,7 @@
             <button class="remove-candidate-btn" onclick="removeCandidate('${position.replace(/'/g, "\\'")}', '${candidate.replace(/'/g, "\\'")}')" ${currentLoginType === 'field' ? 'disabled' : ''}>
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap='round' stroke-linejoin='round'>
                 <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2='18'></line>
               </svg>
               Remove
             </button>
