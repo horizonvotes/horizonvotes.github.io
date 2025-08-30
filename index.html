@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Horizon Academy - Voting System</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗳️</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- Add jsPDF library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -173,7 +174,7 @@
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
-      transition: var(--transition;
+      transition: var(--transition);
       font-family: 'Poppins', sans-serif;
       letter-spacing: 0.5px;
       margin-top: 10px;
@@ -924,8 +925,8 @@
   
   <button class="save-btn" onclick="saveCandidates()">Save Changes</button>
   
-  <!-- Position Management Section -->
-  <div class="position-management">
+  <!-- Position Management Section (Hidden by default) -->
+  <div class="position-management" id="positionManagementSection" style="display: none;">
     <h3 style="text-align: left; margin-bottom: 15px; color: var(--primary);">Position Management</h3>
     
     <div class="position-input-container">
@@ -1262,6 +1263,8 @@
       loadCandidateData().then(() => {
         document.getElementById('candidateManagement').classList.remove('hidden');
         updateCandidateList();
+        // Hide position management section for regular data login
+        document.getElementById('positionManagementSection').style.display = 'none';
       }).catch(error => {
         console.error("Error loading candidate data:", error);
         errorElement.textContent = 'Failed to load candidate data. Please try again.';
@@ -1274,7 +1277,7 @@
         document.getElementById('candidateManagement').classList.remove('hidden');
         updateCandidateList();
         // Show position management section
-        document.querySelector('.position-management').style.display = 'block';
+        document.getElementById('positionManagementSection').style.display = 'block';
       }).catch(error => {
         console.error("Error loading candidate data:", error);
         errorElement.textContent = 'Failed to load candidate data. Please try again.';
@@ -1446,8 +1449,8 @@ async function updateVoteCounts() {
   } catch (error) {
     console.error("Error updating vote counts:", error);
     throw error;
+    }
   }
-}
 
   // Voting System Functions
   function startVoting() {
