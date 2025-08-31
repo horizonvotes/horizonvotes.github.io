@@ -698,7 +698,7 @@
     .position-list {
       margin-top: 15px;
       border: 1px solid var(--light-gray);
-      border-radius: 10px;
+      bridius: 10px;
       overflow: hidden;
       max-height: 200px;
       overflow-y: auto;
@@ -778,7 +778,7 @@
       }
     }
   </style>
-  <!-- Firebase library - Updated to latest version -->
+  <!-- Firebase library -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
@@ -926,7 +926,7 @@
     function setCookie(name, value, days) {
       const expires = new Date();
       expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-      document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=Strict`;
+      document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
     }
     function getCookie(name) {
       const nameEQ = name + "=";
@@ -934,7 +934,7 @@
       for(let i = 0; i < ca.length; i++) {
         let c = ca[i];
         while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
       }
       return null;
     }
@@ -943,7 +943,10 @@
     }
     // Save current state to cookies
     function saveStateToCookies() {
-      setCookie('currentScreen', document.querySelector('.container:not(.hidden)').id, 1);
+      const currentContainer = document.querySelector('.container:not(.hidden)');
+      if (!currentContainer) return;
+      
+      setCookie('currentScreen', currentContainer.id, 1);
       setCookie('currentLoginType', currentLoginType, 1);
       setCookie('currentPositionIndex', current.toString(), 1);
       setCookie('timeLeft', timeLeft.toString(), 1);
@@ -970,14 +973,7 @@
         });
 
         // Show the saved screen
-        const screenElement = document.getElementById(currentScreen);
-        if (screenElement) {
-          screenElement.classList.remove('hidden');
-        } else {
-          // If the screen doesn't exist, go to login
-          document.getElementById('loginContainer').classList.remove('hidden');
-          return false;
-        }
+        document.getElementById(currentScreen).classList.remove('hidden');
 
         // Restore login type and other state
         if (savedLoginType) {
@@ -1085,10 +1081,6 @@
         positionSelector.addEventListener('change', updateCandidateList);
         positionSelector.hasListener = true;
       }
-      // Update candidate list for the selected position
-      if (ELECTION_POSITIONS.length > 0) {
-        updateCandidateList();
-      }
     }
     // Update position list display
     function updatePositionList() {
@@ -1165,6 +1157,8 @@
             updatePositionSelector();
             updatePositionList();
             showToast('Position removed successfully', 'success');
+            // Update candidate list for the current position
+            updateCandidateList();
           } catch (error) {
             console.error("Error removing position:", error);
             showToast('Failed to remove position', 'error');
@@ -1234,7 +1228,7 @@
         currentLoginType = 'data';
         document.getElementById('loginContainer').classList.add('hidden');
         loadCandidateData().then(() => {
-          document.getElementById('candidateManagement').classlist.remove('hidden');
+          document.getElementById('candidateManagement').classList.remove('hidden');
           updateCandidateList();
           // Hide position management section for 'data' login
           document.getElementById('positionManagementSection').style.display = 'none';
@@ -1441,8 +1435,6 @@
       selectedCandidate = null;
       isSkipSelected = false;
       current = 0;
-      // Save state to cookies
-      saveStateToCookies();
       showVotingFrame(ELECTION_POSITIONS[current]);
     }
     function showVotingFrame(title) {
@@ -1450,7 +1442,7 @@
         container.classList.add("hidden");
       });
       // Create a more unique ID by removing spaces and adding prefix
-      let id = "voteFrame_" + title.replace(/\s+/g, "_").replace(/[()]/g, '');
+      let id = "voteFrame_" + title.replace(/\s+/g, "_");
       let div = document.getElementById(id);
       if (!div) {
         div = document.createElement("div");
@@ -1504,7 +1496,10 @@
       saveStateToCookies();
     }
     function selectSkip(title, buttonElement) {
-      const containerId = "voteFrame_" + title.replace(/\s+/g, "_").replace(/[()]/g, '');
+      // Escape special characters in the title for use in a CSS selector
+      const escapedTitle = title.replace(/[()]/g, '\\$&');
+      const containerId = "voteFrame_" + escapedTitle.replace(/\s+/g, "_");
+      // Use the escaped title in the querySelectorAll call
       const buttons = document.querySelectorAll(`#${containerId} .candidate-btn`);
       buttons.forEach(btn => {
           btn.classList.remove("selected");
@@ -1515,7 +1510,10 @@
       isSkipSelected = true;
     }
     function selectCandidate(title, candidateIndex, buttonElement) {
-      const containerId = "voteFrame_" + title.replace(/\s+/g, "_").replace(/[()]/g, '');
+      // Escape special characters in the title for use in a CSS selector
+      const escapedTitle = title.replace(/[()]/g, '\\$&');
+      const containerId = "voteFrame_" + escapedTitle.replace(/\s+/g, "_");
+      // Use the escaped title in the querySelectorAll call
       const buttons = document.querySelectorAll(`#${containerId} .candidate-btn`);
       buttons.forEach(btn => {
           btn.classList.remove("selected");
@@ -1679,12 +1677,12 @@
     }
     async function askViewVotes() {
       const pass = prompt("Enter password to view total votes:");
-      if (pass === "1234") {
+      if (pass === '1234') {
         await showVotes();
         // Save state to cookies
         saveStateToCookies();
       } else if (pass !== null) {
-        showToast("Incorrect password!", 'error');
+        showToast("Incorrect password!", "error");
       }
     }
     async function showVotes() {
@@ -1721,7 +1719,7 @@
         const votes = candidatesList.map(candidate => voteData[candidate] || 0);
         const maxVotes = Math.max(...votes);
         const winners = votes.map((votes, index) => votes === maxVotes ? index : -1).filter(index => index !== -1);
-        candidatesList.forEach((candidate, index) => {
+        candidatesList.forEach((candidate, index) {
           const row = document.createElement("div");
           row.className = "candidate-row";
           row.innerHTML = `
