@@ -778,7 +778,7 @@
       }
     }
   </style>
-  <!-- Firebase library -->
+  <!-- Firebase library - Updated to latest version -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
@@ -926,7 +926,7 @@
     function setCookie(name, value, days) {
       const expires = new Date();
       expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-      document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+      document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=Strict`;
     }
     function getCookie(name) {
       const nameEQ = name + "=";
@@ -934,7 +934,7 @@
       for(let i = 0; i < ca.length; i++) {
         let c = ca[i];
         while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
       }
       return null;
     }
@@ -970,7 +970,14 @@
         });
 
         // Show the saved screen
-        document.getElementById(currentScreen).classList.remove('hidden');
+        const screenElement = document.getElementById(currentScreen);
+        if (screenElement) {
+          screenElement.classList.remove('hidden');
+        } else {
+          // If the screen doesn't exist, go to login
+          document.getElementById('loginContainer').classList.remove('hidden');
+          return false;
+        }
 
         // Restore login type and other state
         if (savedLoginType) {
@@ -1077,6 +1084,10 @@
       if (!positionSelector.hasListener) {
         positionSelector.addEventListener('change', updateCandidateList);
         positionSelector.hasListener = true;
+      }
+      // Update candidate list for the selected position
+      if (ELECTION_POSITIONS.length > 0) {
+        updateCandidateList();
       }
     }
     // Update position list display
@@ -1223,7 +1234,7 @@
         currentLoginType = 'data';
         document.getElementById('loginContainer').classList.add('hidden');
         loadCandidateData().then(() => {
-          document.getElementById('candidateManagement').classList.remove('hidden');
+          document.getElementById('candidateManagement').classlist.remove('hidden');
           updateCandidateList();
           // Hide position management section for 'data' login
           document.getElementById('positionManagementSection').style.display = 'none';
@@ -1439,7 +1450,7 @@
         container.classList.add("hidden");
       });
       // Create a more unique ID by removing spaces and adding prefix
-      let id = "voteFrame_" + title.replace(/\s+/g, "_");
+      let id = "voteFrame_" + title.replace(/\s+/g, "_").replace(/[()]/g, '');
       let div = document.getElementById(id);
       if (!div) {
         div = document.createElement("div");
@@ -1493,10 +1504,7 @@
       saveStateToCookies();
     }
     function selectSkip(title, buttonElement) {
-      // Escape special characters in the title for use in a CSS selector
-      const escapedTitle = title.replace(/[()]/g, '\\$&');
-      const containerId = "voteFrame_" + escapedTitle.replace(/\s+/g, "_");
-      // Use the escaped title in the querySelectorAll call
+      const containerId = "voteFrame_" + title.replace(/\s+/g, "_").replace(/[()]/g, '');
       const buttons = document.querySelectorAll(`#${containerId} .candidate-btn`);
       buttons.forEach(btn => {
           btn.classList.remove("selected");
@@ -1507,10 +1515,7 @@
       isSkipSelected = true;
     }
     function selectCandidate(title, candidateIndex, buttonElement) {
-      // Escape special characters in the title for use in a CSS selector
-      const escapedTitle = title.replace(/[()]/g, '\\$&');
-      const containerId = "voteFrame_" + escapedTitle.replace(/\s+/g, "_");
-      // Use the escaped title in the querySelectorAll call
+      const containerId = "voteFrame_" + title.replace(/\s+/g, "_").replace(/[()]/g, '');
       const buttons = document.querySelectorAll(`#${containerId} .candidate-btn`);
       buttons.forEach(btn => {
           btn.classList.remove("selected");
@@ -1679,7 +1684,7 @@
         // Save state to cookies
         saveStateToCookies();
       } else if (pass !== null) {
-        showToast("Incorrect password!", "error");
+        showToast("Incorrect password!", 'error');
       }
     }
     async function showVotes() {
