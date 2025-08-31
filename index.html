@@ -6,9 +6,11 @@
   <title>Horizon Academy - Voting System</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗳️</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Add jsPDF library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <style>
+    /* Main Styles */
     :root {
       --primary: #4361ee;
       --primary-dark: #3a56d4;
@@ -114,6 +116,7 @@
       padding-top: 15px;
       border-top: 1px solid var(--light-gray);
     }
+    /* Login Form Styles */
     .login-form {
       display: flex;
       flex-direction: column;
@@ -174,6 +177,7 @@
       text-align: center;
       font-weight: 50%;
     }
+    /* Candidate Management Styles */
     .management-container {
       max-width: 500px;
     }
@@ -322,6 +326,7 @@
       font-style: italic;
       background-color: var(--light);
     }
+    /* Voting Interface Styles */
     .btn {
       display: flex;
       align-items: center;
@@ -452,6 +457,7 @@
       cursor: pointer;
       opacity: 0;
     }
+    /* Vote Summary Styles */
     .vote-list {
       text-align: left;
       margin-top: 20px;
@@ -526,6 +532,7 @@
     .category-btn:hover::after {
       transform: translateX(100%);
     }
+    /* Confirmation Dialog Styles */
     .confirmation-dialog {
       position: fixed;
       top: 0;
@@ -598,6 +605,7 @@
     .dialog-btn-confirm:hover {
       background-color: #e5177e;
     }
+    /* Toast Notification Styles */
     .toast {
       position: fixed;
       bottom: 30px;
@@ -629,6 +637,7 @@
     .toast-info {
       background-color: var(--info);
     }
+    /* Loading Spinner */
     .spinner {
       display: inline-block;
       width: 20px;
@@ -641,6 +650,7 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+    /* Position Management Styles */
     .position-management {
       margin-top: 20px;
       border-top: 1px solid var(--light-gray);
@@ -728,6 +738,7 @@
       transform: translateY(-1px);
       box-shadow: var(--shadow);
     }
+    /* Back button for main menu */
     .back-to-login {
       position: absolute;
       top: 16px;
@@ -750,6 +761,7 @@
       background-color: var(--light-gray);
       transform: translateX(-2px);
     }
+    /* Responsive Styles */
     @media (max-width: 480px) {
       .container {
         padding: 25px 20px;
@@ -766,6 +778,7 @@
       }
     }
   </style>
+  <!-- Firebase library -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
@@ -808,7 +821,9 @@
       <div class="academy-name">Horizon Academy</div>
       <div class="academy-subtitle">Candidate Management</div>
     </div>
-    <select class="position-selector" id="positionSelector"></select>
+    <select class="position-selector" id="positionSelector">
+      <!-- Positions populated from code -->
+    </select>
     <div class="candidate-input-container" id="candidateInputContainer">
       <input type="text" class="candidate-input" id="candidateNameInput" placeholder="Enter candidate name" disabled>
       <button class="add-candidate-btn" id="addCandidateBtn" onclick="addCandidate()" disabled>
@@ -823,7 +838,7 @@
       <div class="no-candidates">No candidates added yet</div>
     </div>
     <button class="save-btn" onclick="saveCandidates()">Save Changes</button>
-    <!-- Position Management Section -->
+    <!-- Position Management Section (Hidden by default) -->
     <div class="position-management" id="positionManagementSection" style="display: none;">
       <h3 style="text-align: left; margin-bottom: 15px; color: var(--primary);">Position Management</h3>
       <div class="position-input-container">
@@ -836,7 +851,9 @@
           Add
         </button>
       </div>
-      <div class="position-list" id="positionList"></div>
+      <div class="position-list" id="positionList">
+        <!-- Positions will be populated here -->
+      </div>
     </div>
     <div class="creator-credit">Created By Bhavesh Pawar From Grade 9</div>
   </div>
@@ -877,8 +894,9 @@
     </div>
   </div>
   <!-- Thank You Screen -->
-  <div class="container hidden" id="thankYouMenu"></div>
-
+  <div class="container hidden" id="thankYouMenu">
+    <!-- Dynamically generated -->
+  </div>
   <script>
     // Initialize jsPDF
     const { jsPDF } = window.jspdf;
@@ -894,7 +912,7 @@
     // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    // Election positions
+    // Election positions (will be loaded from Firestore)
     let ELECTION_POSITIONS = [];
     // Global variables
     let candidatesData = {};
@@ -902,9 +920,8 @@
     let selectedCandidate = null;
     let isSkipSelected = false;
     let timerInterval;
-    let timeLeft = 300; // 5 minutes
-    let currentLoginType = '';
-
+    let timeLeft = 300; // 5 minutes in seconds
+    let currentLoginType = ''; // Track the current login type
     // Cookie functions
     function setCookie(name, value, days) {
       const expires = new Date();
@@ -924,20 +941,20 @@
     function deleteCookie(name) {
       document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     }
-
-    // Save state to cookies
+    // Save current state to cookies
     function saveStateToCookies() {
       setCookie('currentScreen', document.querySelector('.container:not(.hidden)').id, 1);
       setCookie('currentLoginType', currentLoginType, 1);
       setCookie('currentPositionIndex', current.toString(), 1);
       setCookie('timeLeft', timeLeft.toString(), 1);
+
+      // Save voting progress if in voting process
       if (currentLoginType === 'horizon' && current > 0) {
         setCookie('votingInProgress', 'true', 1);
       } else {
         setCookie('votingInProgress', 'false', 1);
       }
     }
-
     // Restore state from cookies
     function restoreStateFromCookies() {
       const currentScreen = getCookie('currentScreen');
@@ -947,45 +964,68 @@
       const votingInProgress = getCookie('votingInProgress');
 
       if (currentScreen && currentScreen !== 'loginContainer') {
+        // Hide all containers first
         document.querySelectorAll('.container').forEach(container => {
           container.classList.add('hidden');
         });
+
+        // Show the saved screen
         document.getElementById(currentScreen).classList.remove('hidden');
-        if (savedLoginType) currentLoginType = savedLoginType;
-        if (savedPositionIndex) current = parseInt(savedPositionIndex);
-        if (savedTimeLeft) timeLeft = parseInt(savedTimeLeft);
+
+        // Restore login type and other state
+        if (savedLoginType) {
+          currentLoginType = savedLoginType;
+        }
+
+        if (savedPositionIndex) {
+          current = parseInt(savedPositionIndex);
+        }
+
+        if (savedTimeLeft) {
+          timeLeft = parseInt(savedTimeLeft);
+        }
+
+        // If we were in the middle of voting, restore the voting state
         if (votingInProgress === 'true' && current > 0) {
+          // We need to reload candidate data first
           loadCandidateData().then(() => {
             showVotingFrame(ELECTION_POSITIONS[current]);
           });
         }
+
         return true;
       }
       return false;
     }
-
     // Initialize the app
     document.addEventListener('DOMContentLoaded', function() {
+      // Set up login form
       document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         checkLogin();
       });
+      // Set up confirmation dialog buttons
       document.getElementById('dialogCancel').addEventListener('click', hideConfirmationDialog);
+      // Load positions from Firestore first
       loadPositions().then(() => {
+        // Try to restore state from cookies after positions are loaded
         const stateRestored = restoreStateFromCookies();
+
+        // If state wasn't restored from cookies, show login screen
         if (!stateRestored) {
           document.getElementById('loginContainer').classList.remove('hidden');
-        } else if (document.getElementById('candidateManagement').classList.contains('hidden') === false) {
-          updateCandidateList();
+        } else {
+          // If we're on candidate management screen, update the candidate list
+          if (document.getElementById('candidateManagement').classList.contains('hidden') === false) {
+            updateCandidateList();
+          }
         }
       });
     });
-
     // Save state before page unload
     window.addEventListener('beforeunload', function() {
       saveStateToCookies();
     });
-
     // Load positions from Firestore
     async function loadPositions() {
       try {
@@ -994,16 +1034,28 @@
         if (doc.exists) {
           ELECTION_POSITIONS = doc.data().positions || [];
         } else {
+          // Initialize with default positions if none exist
           ELECTION_POSITIONS = [
-            "Vice Captain Aravali", "Vice Captain Himalaya", "Vice Captain Nilgiri", "Vice Captain Sayadri",
-            "Captain Aravali", "Captain Himalaya", "Captain Nilgiri", "Captain Sayadri",
-            "Sports Captain (Boy)", "Sports Captain (Girl)", "Head Girl", "Head Boy"
+            "Vice Captain Aravali",
+            "Vice Captain Himalaya",
+            "Vice Captain Nilgiri",
+            "Vice Captain Sayadri",
+            "Captain Aravali",
+            "Captain Himalaya",
+            "Captain Nilgiri",
+            "Captain Sayadri",
+            "Sports Captain (Boy)",
+            "Sports Captain (Girl)",
+            "Head Girl",
+            "Head Boy"
           ];
+          // Save default positions to Firestore
           await docRef.set({
             positions: ELECTION_POSITIONS,
             lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
           });
         }
+        // Update position selector and list
         updatePositionSelector();
         updatePositionList();
       } catch (error) {
@@ -1011,8 +1063,7 @@
         showToast('Failed to load positions', 'error');
       }
     }
-
-    // Update position selector
+    // Update position selector dropdown
     function updatePositionSelector() {
       const positionSelector = document.getElementById('positionSelector');
       positionSelector.innerHTML = '';
@@ -1022,13 +1073,13 @@
         option.textContent = position;
         positionSelector.appendChild(option);
       });
+      // Set up position change listener if not already set
       if (!positionSelector.hasListener) {
         positionSelector.addEventListener('change', updateCandidateList);
         positionSelector.hasListener = true;
       }
     }
-
-    // Update position list
+    // Update position list display
     function updatePositionList() {
       const positionList = document.getElementById('positionList');
       if (ELECTION_POSITIONS.length > 0) {
@@ -1048,7 +1099,6 @@
         positionList.innerHTML = '<div class="no-candidates">No positions added yet</div>';
       }
     }
-
     // Add a new position
     async function addPosition() {
       const positionName = document.getElementById('positionNameInput').value.trim();
@@ -1056,14 +1106,18 @@
         showToast('Please enter a position name', 'error');
         return;
       }
+      // Check if position already exists
       if (ELECTION_POSITIONS.includes(positionName)) {
         showToast('This position already exists', 'error');
         return;
       }
+      // Add to local array
       ELECTION_POSITIONS.push(positionName);
       document.getElementById('positionNameInput').value = '';
+      // Update UI
       updatePositionSelector();
       updatePositionList();
+      // Save to Firestore
       try {
         await db.collection("voteCounts").doc("positions").set({
           positions: ELECTION_POSITIONS,
@@ -1075,7 +1129,6 @@
         showToast('Failed to save position', 'error');
       }
     }
-
     // Remove a position
     async function removePosition(positionName) {
       showConfirmationDialog(
@@ -1083,14 +1136,21 @@
         `Are you sure you want to remove the "${positionName}" position? This will also remove all candidates and votes for this position.`,
         async () => {
           try {
+            // Remove from local array
             ELECTION_POSITIONS = ELECTION_POSITIONS.filter(pos => pos !== positionName);
-            if (candidatesData[positionName]) delete candidatesData[positionName];
+            // Remove from candidates data
+            if (candidatesData[positionName]) {
+              delete candidatesData[positionName];
+            }
+            // Remove vote counts for this position
             const voteCountRef = db.collection("voteCounts").doc(positionName);
             await voteCountRef.delete();
+            // Update positions in Firestore
             await db.collection("voteCounts").doc("positions").set({
               positions: ELECTION_POSITIONS,
               lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             });
+            // Update UI
             updatePositionSelector();
             updatePositionList();
             showToast('Position removed successfully', 'success');
@@ -1101,8 +1161,7 @@
         }
       );
     }
-
-    // Show toast
+    // Show toast notification
     function showToast(message, type = 'info', duration = 3000) {
       const toast = document.getElementById('toastNotification');
       const toastMessage = document.getElementById('toastMessage');
@@ -1110,9 +1169,10 @@
       toast.classList.add(`toast-${type}`);
       toastMessage.textContent = message;
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), duration);
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, duration);
     }
-
     // Show confirmation dialog
     function showConfirmationDialog(title, message, confirmCallback) {
       const dialog = document.getElementById('confirmationDialog');
@@ -1121,6 +1181,7 @@
       const dialogConfirm = document.getElementById('dialogConfirm');
       dialogTitle.textContent = title;
       dialogMessage.textContent = message;
+      // Remove previous event listeners
       const newConfirmBtn = dialogConfirm.cloneNode(true);
       dialogConfirm.parentNode.replaceChild(newConfirmBtn, dialogConfirm);
       newConfirmBtn.addEventListener('click', function() {
@@ -1129,73 +1190,92 @@
       });
       dialog.classList.add('active');
     }
-
     // Hide confirmation dialog
     function hideConfirmationDialog() {
       document.getElementById('confirmationDialog').classList.remove('active');
     }
-
     // Login function
     function checkLogin() {
       const passwordInput = document.getElementById('loginPassword').value;
       const errorElement = document.getElementById('loginError');
+      // Clear previous error
       errorElement.textContent = '';
       if (!passwordInput) {
         errorElement.textContent = 'Please enter a password';
         return;
       }
       if (passwordInput.toLowerCase() === 'horizon') {
+        // Successful login to main voting panel
         currentLoginType = 'horizon';
         document.getElementById('loginContainer').classList.add('hidden');
         loadCandidateData().then(() => {
           document.getElementById('mainMenu').classList.remove('hidden');
+          // Save state to cookies
           saveStateToCookies();
         }).catch(error => {
           console.error("Error loading candidate data:", error);
           errorElement.textContent = 'Failed to load voting data. Please try again.';
           document.getElementById('loginContainer').classList.remove('hidden');
         });
-      } else if (passwordInput.toLowerCase() === 'data') {
+      }
+      else if (passwordInput.toLowerCase() === 'data') {
+        // Successful login to candidate management
         currentLoginType = 'data';
         document.getElementById('loginContainer').classList.add('hidden');
         loadCandidateData().then(() => {
           document.getElementById('candidateManagement').classList.remove('hidden');
+          updateCandidateList();
+          // Hide position management section for 'data' login
           document.getElementById('positionManagementSection').style.display = 'none';
+          // Enable candidate management features
           document.getElementById('candidateNameInput').disabled = false;
           document.getElementById('addCandidateBtn').disabled = false;
+          // Show candidate input container
           document.getElementById('candidateInputContainer').style.display = 'flex';
+          // Show candidate list
           document.getElementById('candidateList').style.display = 'block';
+          // Show save button
           document.querySelector('.save-btn').style.display = 'block';
-          updateCandidateList();
+          // Save state to cookies
           saveStateToCookies();
         }).catch(error => {
           console.error("Error loading candidate data:", error);
           errorElement.textContent = 'Failed to load candidate data. Please try again.';
           document.getElementById('loginContainer').classList.remove('hidden');
         });
-      } else if (passwordInput.toLowerCase() === 'field') {
+      }
+      else if (passwordInput.toLowerCase() === 'field') {
+        // Successful login to position management
         currentLoginType = 'field';
         document.getElementById('loginContainer').classList.add('hidden');
         loadCandidateData().then(() => {
           document.getElementById('candidateManagement').classList.remove('hidden');
+          updateCandidateList();
+          // Show position management section for 'field' login
           document.getElementById('positionManagementSection').style.display = 'block';
+          // Disable candidate management features
           document.getElementById('candidateNameInput').disabled = true;
           document.getElementById('addCandidateBtn').disabled = true;
+          // Hide candidate input container
           document.getElementById('candidateInputContainer').style.display = 'none';
+          // Hide candidate list
           document.getElementById('candidateList').style.display = 'none';
+          // Hide save button
           document.querySelector('.save-btn').style.display = 'none';
+          // Save state to cookies
           saveStateToCookies();
         }).catch(error => {
           console.error("Error loading candidate data:", error);
           errorElement.textContent = 'Failed to load candidate data. Please try again.';
           document.getElementById('loginContainer').classList.remove('hidden');
         });
-      } else {
+      }
+      else {
+        // Failed login
         errorElement.textContent = 'Incorrect password. Please try again.';
       }
     }
-
-    // Load candidate data
+    // Load candidate data from Firestore
     async function loadCandidateData() {
       try {
         showToast('Loading candidate data...', 'info');
@@ -1205,8 +1285,11 @@
           candidatesData = doc.data().positions || {};
           showToast('Candidate data loaded successfully', 'success');
         } else {
+          // Initialize empty candidates data structure
           candidatesData = {};
-          ELECTION_POSITIONS.forEach(position => candidatesData[position] = []);
+          ELECTION_POSITIONS.forEach(position => {
+            candidatesData[position] = [];
+          });
           showToast('No candidate data found. Created new structure.', 'info');
         }
       } catch (error) {
@@ -1215,8 +1298,7 @@
         throw error;
       }
     }
-
-    // Update candidate list
+    // Update the candidate list display
     function updateCandidateList() {
       const position = document.getElementById('positionSelector').value;
       const candidateList = document.getElementById('candidateList');
@@ -1237,9 +1319,9 @@
         candidateList.innerHTML = '<div class="no-candidates">No candidates added yet</div>';
       }
     }
-
-    // Add a candidate
+    // Add a new candidate
     function addCandidate() {
+      // Prevent adding candidates when logged in with 'field' password
       if (currentLoginType === 'field') {
         showToast('Cannot add candidates in field mode', 'error');
         return;
@@ -1250,7 +1332,10 @@
         showToast('Please enter a candidate name', 'error');
         return;
       }
-      if (!candidatesData[position]) candidatesData[position] = [];
+      if (!candidatesData[position]) {
+        candidatesData[position] = [];
+      }
+      // Check if candidate already exists
       if (candidatesData[position].includes(candidateName)) {
         showToast('This candidate already exists for this position', 'error');
         return;
@@ -1260,9 +1345,9 @@
       updateCandidateList();
       showToast('Candidate added successfully', 'success');
     }
-
     // Remove a candidate
     function removeCandidate(position, candidateName) {
+      // Prevent removing candidates when logged in with 'field' password
       if (currentLoginType === 'field') {
         showToast('Cannot remove candidates in field mode', 'error');
         return;
@@ -1272,7 +1357,9 @@
         `Are you sure you want to remove ${candidateName} from ${position}? This will also remove all their votes.`,
         async () => {
           try {
+            // Remove from local data
             candidatesData[position] = candidatesData[position].filter(c => c !== candidateName);
+            // Remove from Firestore vote counts
             const voteCountRef = db.collection("voteCounts").doc(position);
             await db.runTransaction(async (transaction) => {
               const doc = await transaction.get(voteCountRef);
@@ -1293,15 +1380,16 @@
         }
       );
     }
-
-    // Save candidates
+    // Save all changes to Firestore
     async function saveCandidates() {
       try {
         showToast('Saving candidate data...', 'info');
+        // Save to Firestore in the voteCounts collection
         await db.collection("voteCounts").doc("candidates").set({
           positions: candidatesData,
           lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
         });
+        // Also update the vote counts for all positions
         await updateVoteCounts();
         showToast('Candidate data saved successfully!', 'success');
       } catch (error) {
@@ -1309,16 +1397,17 @@
         showToast('Failed to save candidates', 'error');
       }
     }
-
-    // Update vote counts
+    // Update vote counts in the database
     async function updateVoteCounts() {
       try {
         const batch = db.batch();
         for (const position of ELECTION_POSITIONS) {
           const docRef = db.collection("voteCounts").doc(position);
           const currentCandidates = candidatesData[position] || [];
+          // Get current vote counts to preserve existing votes
           const doc = await docRef.get();
           const currentVotes = doc.exists ? doc.data().votes || {} : {};
+          // Create new votes object with existing votes or 0 for new candidates
           const newVotes = {};
           currentCandidates.forEach(candidate => {
             newVotes[candidate] = currentVotes[candidate] || 0;
@@ -1329,40 +1418,46 @@
           });
         }
         await batch.commit();
+        console.log("Vote counts updated successfully");
       } catch (error) {
         console.error("Error updating vote counts:", error);
         throw error;
       }
     }
-
-    // Voting functions
+    // Voting System Functions
     function startVoting() {
       document.getElementById("mainMenu").classList.add("hidden");
       selectedCandidate = null;
       isSkipSelected = false;
       current = 0;
+      // Save state to cookies
       saveStateToCookies();
       showVotingFrame(ELECTION_POSITIONS[current]);
     }
-
     function showVotingFrame(title) {
-      document.querySelectorAll('.container').forEach(container => container.classList.add("hidden"));
+      document.querySelectorAll('.container').forEach(container => {
+        container.classList.add("hidden");
+      });
+      // Create a more unique ID by removing spaces and adding prefix
       let id = "voteFrame_" + title.replace(/\s+/g, "_");
       let div = document.getElementById(id);
       if (!div) {
         div = document.createElement("div");
         div.className = "container";
         div.id = id;
-        const candidateButtons = (candidatesData[title] || []).map((candidate, index) => `
-          <button class="btn candidate-btn" onclick="selectCandidate('${title.replace(/'/g, "\\'")}', ${index}, this)">
-            <div class="candidate-content">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;">
-                <circle cx="11" cy="11" r="8"></circle>
-              </svg>
-              <div class="candidate-name">${candidate}</div>
-            </div>
-          </button>
-        `).join('');
+        const candidateButtons = (candidatesData[title] || []).map((candidate, index) => {
+          return `
+            <button class="btn candidate-btn" onclick="selectCandidate('${title.replace(/'/g, "\\'")}', ${index}, this)">
+              <div class="candidate-content">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="M21 21l-4.35-4.35"></path>
+                </svg>
+                <div class="candidate-name">${candidate}</div>
+              </div>
+            </button>
+          `;
+        }).join('');
         div.innerHTML = `
           <button class="back-arrow" onclick="askBack('${id}')">&larr;</button>
           <button class="invisible-admin-btn" onclick="handleAdminOverride('${id}')"></button>
@@ -1370,8 +1465,12 @@
             <div class="academy-name">Horizon Academy</div>
             <div class="academy-subtitle">${title}</div>
           </div>
-          <div class="scroll-container">${candidateButtons}</div>
-          <button class="btn btn-skip" onclick="selectSkip('${title.replace(/'/g, "\\'")}', this)">Skip this position</button>
+          <div class="scroll-container">
+            ${candidateButtons}
+            <button class="btn btn-skip" onclick="selectSkip('${title.replace(/'/g, "\\'")}', this)">
+              Skip
+            </button>
+          </div>
           <button class="btn btn-next" onclick="proceedToNext('${title.replace(/'/g, "\\'")}')" disabled>
             Next
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px;">
@@ -1383,35 +1482,45 @@
         `;
         document.body.appendChild(div);
       } else {
-        div.querySelectorAll('.candidate-btn').forEach(btn => btn.classList.remove("selected"));
+        div.querySelectorAll('.candidate-btn').forEach(btn => {
+          btn.classList.remove("selected");
+        });
         div.querySelector('.btn-skip').classList.remove("selected");
         div.querySelector('.btn-next').disabled = true;
       }
       div.classList.remove("hidden");
+      // Save state to cookies
       saveStateToCookies();
     }
-
     function selectSkip(title, buttonElement) {
+      // Escape special characters in the title for use in a CSS selector
       const escapedTitle = title.replace(/[()]/g, '\\$&');
       const containerId = "voteFrame_" + escapedTitle.replace(/\s+/g, "_");
-      document.querySelectorAll(`#${containerId} .candidate-btn`).forEach(btn => btn.classList.remove("selected"));
+      // Use the escaped title in the querySelectorAll call
+      const buttons = document.querySelectorAll(`#${containerId} .candidate-btn`);
+      buttons.forEach(btn => {
+          btn.classList.remove("selected");
+      });
       buttonElement.classList.add("selected");
       document.querySelector(`#${containerId} .btn-next`).disabled = false;
       selectedCandidate = null;
       isSkipSelected = true;
     }
-
     function selectCandidate(title, candidateIndex, buttonElement) {
+      // Escape special characters in the title for use in a CSS selector
       const escapedTitle = title.replace(/[()]/g, '\\$&');
       const containerId = "voteFrame_" + escapedTitle.replace(/\s+/g, "_");
-      document.querySelectorAll(`#${containerId} .candidate-btn`).forEach(btn => btn.classList.remove("selected"));
+      // Use the escaped title in the querySelectorAll call
+      const buttons = document.querySelectorAll(`#${containerId} .candidate-btn`);
+      buttons.forEach(btn => {
+          btn.classList.remove("selected");
+      });
       document.querySelector(`#${containerId} .btn-skip`).classList.remove("selected");
       buttonElement.classList.add("selected");
       document.querySelector(`#${containerId} .btn-next`).disabled = false;
       selectedCandidate = { title, candidateIndex };
       isSkipSelected = false;
     }
-
     async function proceedToNext(title) {
       if (isSkipSelected) {
         skipPosition(title);
@@ -1426,9 +1535,9 @@
           showThankYouMenu();
         }
       }
+      // Save state to cookies
       saveStateToCookies();
     }
-
     function skipPosition(title) {
       selectedCandidate = null;
       isSkipSelected = false;
@@ -1438,9 +1547,9 @@
       } else {
         showThankYouMenu();
       }
+      // Save state to cookies
       saveStateToCookies();
     }
-
     async function vote(title, candidateIndex) {
       const candidateName = candidatesData[title][candidateIndex];
       try {
@@ -1448,6 +1557,7 @@
         await db.runTransaction(async (transaction) => {
           const doc = await transaction.get(voteCountRef);
           if (!doc.exists) {
+            // Initialize if document doesn't exist
             transaction.set(voteCountRef, {
               votes: { [candidateName]: 1 },
               lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
@@ -1461,13 +1571,13 @@
             lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
           });
         });
+        console.log(`Vote recorded for ${candidateName} as ${title}`);
       } catch (error) {
         console.error("Error recording vote:", error);
         showToast("Failed to record vote", "error");
         throw error;
       }
     }
-
     function showThankYouMenu() {
       document.querySelector('.container:not(.hidden)').classList.add('hidden');
       const thankYouMenu = document.getElementById("thankYouMenu");
@@ -1479,52 +1589,57 @@
           <div class="academy-subtitle">Thank You</div>
         </div>
         <div style="margin: 30px 0; font-size: 18px; line-height: 1.6;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--success); margin-bottom: 15px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--success); margin-bottom: 10px;">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
           <div style="font-size: 20px; font-weight: 600; margin-bottom: 10px; color: var(--primary);">Your votes have been submitted successfully!</div>
           <div style="color: var(--gray);">Thank you for participating in the election.</div>
         </div>
-        <button class="btn" id="restartBtn" disabled>Start New Voting Session</button>
+        <button class="btn" id="restartBtn" disabled>
+          Start New Voting Session
+        </button>
         <button class="invisible-timer-btn" onclick="showTimeLeft()"></button>
         <div class="creator-credit">Created By Bhavesh Pawar From Grade 9</div>
       `;
       thankYouMenu.classList.remove("hidden");
+      // Start the countdown timer
       startTimer();
+      // Save state to cookies
       saveStateToCookies();
     }
-
     function showTimeLeft() {
       const minutes = Math.floor(timeLeft / 60);
       const seconds = timeLeft % 60;
       showToast(`Time remaining before you can vote again: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`, 'info');
     }
-
     function startTimer() {
       const restartBtn = document.getElementById("restartBtn");
-      if (timerInterval) clearInterval(timerInterval);
+      // Clear any existing timer
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
       timerInterval = setInterval(() => {
         timeLeft--;
         if (timeLeft <= 0) {
           clearInterval(timerInterval);
           restartBtn.disabled = false;
           restartBtn.onclick = restartVoting;
-          timeLeft = 300;
+          timeLeft = 300; // Reset timer for next use
+          // Save state to cookies
           saveStateToCookies();
         }
       }, 1000);
     }
-
     function restartVoting() {
       current = 0;
       selectedCandidate = null;
       isSkipSelected = false;
       document.getElementById("thankYouMenu").classList.add("hidden");
       showVotingFrame(ELECTION_POSITIONS[current]);
+      // Save state to cookies
       saveStateToCookies();
     }
-
     function handleAdminOverride(containerId) {
       const pass = prompt("Enter admin password:");
       if (pass === "1234") {
@@ -1538,7 +1653,6 @@
         showToast("Incorrect password!", "error");
       }
     }
-
     function askBack(currentId) {
       const pass = prompt("Enter password to return to dashboard:");
       if (pass === "1234") {
@@ -1552,22 +1666,22 @@
           timeLeft = 300;
         }
         showToast("Returned to dashboard", "success");
+        // Save state to cookies
         saveStateToCookies();
       } else if (pass !== null) {
         showToast("Incorrect password!", "error");
       }
     }
-
     async function askViewVotes() {
       const pass = prompt("Enter password to view total votes:");
       if (pass === "1234") {
         await showVotes();
+        // Save state to cookies
         saveStateToCookies();
       } else if (pass !== null) {
         showToast("Incorrect password!", "error");
       }
     }
-
     async function showVotes() {
       const voteButtons = document.getElementById("voteButtons");
       voteButtons.innerHTML = '';
@@ -1580,9 +1694,9 @@
       }
       document.getElementById("mainMenu").classList.add("hidden");
       document.getElementById("voteSummary").classList.remove("hidden");
+      // Save state to cookies
       saveStateToCookies();
     }
-
     async function showCategoryVotes(title) {
       document.getElementById("voteSummary").classList.add("hidden");
       document.getElementById("categoryVotes").classList.remove("hidden");
@@ -1592,7 +1706,9 @@
         showToast('Loading vote data...', 'info');
         const docRef = db.collection("voteCounts").doc(title);
         const docSnap = await docRef.get();
-        if (!docSnap.exists) throw new Error("No vote data found for this position");
+        if (!docSnap.exists) {
+          throw new Error("No vote data found for this position");
+        }
         const voteData = docSnap.data().votes || {};
         const candidatesList = candidatesData[title] || [];
         titleElement.textContent = title;
@@ -1624,17 +1740,19 @@
             <div class="winner-votes">with ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}</div>
           `;
         } else {
-          winnerDiv.innerHTML = `<div style="color: var(--gray);">No Votes Recorded</div>`;
+          winnerDiv.innerHTML = `
+            <div style="color: var(--gray);">No Votes Recorded</div>
+          `;
         }
         display.appendChild(winnerDiv);
         showToast('Vote data loaded', 'success');
+        // Save state to cookies
         saveStateToCookies();
       } catch (error) {
         console.error("Error showing category votes:", error);
         showToast("Failed to load vote data", "error");
       }
     }
-
     async function confirmClearVotes() {
       const pass = prompt("Enter password to delete all votes:");
       if (pass === "1234") {
@@ -1644,11 +1762,14 @@
           async () => {
             try {
               showToast('Resetting all votes...', 'info');
+              // Reset all vote counts in Firestore
               const batch = db.batch();
               for (const position of ELECTION_POSITIONS) {
                 const docRef = db.collection("voteCounts").doc(position);
                 const initialVotes = {};
-                (candidatesData[position] || []).forEach(candidate => initialVotes[candidate] = 0);
+                (candidatesData[position] || []).forEach(candidate => {
+                  initialVotes[candidate] = 0;
+                });
                 batch.set(docRef, {
                   votes: initialVotes,
                   lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
@@ -1656,6 +1777,7 @@
               }
               await batch.commit();
               showToast('All votes have been reset successfully', 'success');
+              // Save state to cookies
               saveStateToCookies();
             } catch (error) {
               console.error("Error clearing votes:", error);
@@ -1667,81 +1789,106 @@
         showToast("Incorrect password!", "error");
       }
     }
-
     async function askDownloadResults() {
       const pass = prompt("Enter password to download results:");
       if (pass === "1234") {
         try {
           showToast('Generating PDF report...', 'info');
+          // Create a new PDF document
           const doc = new jsPDF();
+          // Add title
           doc.setFontSize(20);
-          doc.setTextColor(67, 97, 238);
+          doc.setTextColor(67, 97, 238); // Primary color
           doc.text('Horizon Academy Election Results', 105, 20, { align: 'center' });
           doc.setFontSize(12);
-          doc.setTextColor(33, 37, 41);
+          doc.setTextColor(33, 37, 41); // Dark color
           doc.text('Generated on: ' + new Date().toLocaleString(), 105, 30, { align: 'center' });
+          // Add creator credit
           doc.setFontSize(10);
-          doc.setTextColor(108, 117, 125);
+          doc.setTextColor(108, 117, 125); // Gray color
           doc.text('Created By Bhavesh Pawar From Grade 9', 105, 285, { align: 'center' });
+          // Add line separator
           doc.setDrawColor(67, 97, 238);
           doc.setLineWidth(0.5);
           doc.line(20, 35, 190, 35);
           let yPosition = 45;
+          // Process each position
           for (const position of ELECTION_POSITIONS) {
-            if (yPosition > 250) {
-              doc.addPage();
-              yPosition = 20;
-            }
-            doc.setFontSize(14);
-            doc.setTextColor(67, 97, 238);
-            doc.text(position, 20, yPosition);
-            yPosition += 10;
+            // Get vote data for this position
             const docRef = db.collection("voteCounts").doc(position);
             const docSnap = await docRef.get();
             if (!docSnap.exists) continue;
             const voteData = docSnap.data().votes || {};
             const candidatesList = candidatesData[position] || [];
+            // Check if we need a new page
+            if (yPosition > 250) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            // Add position title
+            doc.setFontSize(14);
+            doc.setTextColor(67, 97, 238);
+            doc.text(position, 20, yPosition);
+            yPosition += 10;
+            // Prepare data for the table
             const tableData = [];
             let totalVotes = 0;
             candidatesList.forEach(candidate => {
               const votes = voteData[candidate] || 0;
-              tableData.push([candidate, votes.toString()]);
+              tableData.push([candidate, votes]);
               totalVotes += votes;
             });
+            // Add table with results
             doc.autoTable({
               startY: yPosition,
               head: [['Candidate', 'Votes']],
               body: tableData,
               theme: 'grid',
-              headStyles: { fillColor: [67, 97, 238], textColor: 255, fontStyle: 'bold' },
-              styles: { cellPadding: 5, fontSize: 10, valign: 'middle' },
-              columnStyles: { 0: { cellWidth: 'auto', fontStyle: 'bold' }, 1: { cellWidth: 'auto', halign: 'right' } }
+              headStyles: {
+                fillColor: [67, 97, 238],
+                textColor: 255,
+                fontStyle: 'bold'
+              },
+              styles: {
+                cellPadding: 5,
+                fontSize: 10,
+                valign: 'middle'
+              },
+              columnStyles: {
+                0: { cellWidth: 'auto', fontStyle: 'bold' },
+                1: { cellWidth: 'auto', halign: 'right' }
+              }
             });
+            // Update yPosition after table
             yPosition = doc.lastAutoTable.finalY + 10;
+            // Find winner(s)
             const votes = candidatesList.map(candidate => voteData[candidate] || 0);
             const maxVotes = Math.max(...votes);
             const winners = votes.map((votes, index) => votes === maxVotes ? index : -1).filter(index => index !== -1);
+            // Add winner information
             if (winners.length > 0) {
               doc.setFontSize(12);
               doc.setTextColor(33, 37, 41);
               if (winners.length > 1) {
-                doc.setTextColor(247, 37, 133);
+                doc.setTextColor(247, 37, 133); // Danger color
                 doc.text('Tie between: ' + winners.map(i => candidatesList[i]).join(', '), 20, yPosition);
                 yPosition += 7;
                 doc.text(`Each has ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}`, 20, yPosition);
               } else {
-                doc.setTextColor(76, 201, 240);
+                doc.setTextColor(76, 201, 240); // Success color
                 doc.text('Winner: ' + candidatesList[winners[0]], 20, yPosition);
                 yPosition += 7;
                 doc.text(`with ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}`, 20, yPosition);
               }
               yPosition += 15;
             }
+            // Add small separator
             doc.setDrawColor(200, 200, 200);
             doc.setLineWidth(0.2);
             doc.line(20, yPosition, 190, yPosition);
             yPosition += 10;
           }
+          // Save the PDF
           doc.save('Horizon_Academy_Election_Results.pdf');
           showToast('PDF report downloaded successfully', 'success');
         } catch (error) {
@@ -1752,8 +1899,9 @@
         showToast("Incorrect password!", "error");
       }
     }
-
+    // Navigation function
     function goTo(from, to) {
+      // Clear any existing timer
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
@@ -1766,6 +1914,7 @@
         isSkipSelected = false;
         timeLeft = 300;
       }
+      // Save state to cookies
       saveStateToCookies();
     }
   </script>
