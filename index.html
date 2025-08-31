@@ -712,20 +712,12 @@
       background-color: var(--white);
       border-bottom: 1px solid var(--light-gray);
       transition: var(--transition);
-      cursor: grab;
     }
     .position-item:hover {
       background-color: var(--light);
     }
     .position-item:last-child {
       border-bottom: none;
-    }
-    .position-item.dragging {
-      opacity: 0.5;
-      background-color: #e2e8ff;
-    }
-    .position-item.drag-over {
-      border-top: 2px solid var(--primary);
     }
     .remove-position-btn {
       background-color: var(--danger);
@@ -745,29 +737,6 @@
       background-color: #e5177e;
       transform: translateY(-1px);
       box-shadow: var(--shadow);
-    }
-    .drag-handle {
-      cursor: grab;
-      margin-right: 10px;
-      color: var(--gray);
-      display: flex;
-      align-items: center;
-    }
-    .drag-handle:active {
-      cursor: grabbing;
-    }
-    .position-number {
-      background-color: var(--primary);
-      color: white;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 600;
-      margin-right: 10px;
     }
     /* Responsive Styles */
     @media (max-width: 480px) {
@@ -856,9 +825,6 @@
     <!-- Position Management Section (Hidden by default) -->
     <div class="position-management" id="positionManagementSection" style="display: none;">
       <h3 style="text-align: left; margin-bottom: 15px; color: var(--primary);">Position Management</h3>
-      <p style="text-align: left; margin-bottom: 15px; color: var(--gray); font-size: 14px;">
-        Drag and drop to reorder positions. The order will be reflected in the voting process.
-      </p>
 
       <div class="position-input-container">
         <input type="text" class="position-input" id="positionNameInput" placeholder="Enter new position name">
@@ -943,7 +909,86 @@
     let timerInterval;
     let timeLeft = 300; // 5 minutes in seconds
     let currentLoginType = ''; // Track the current login type
-    let dragSourceElement = null;
+
+    // Cookie functions
+    function setCookie(name, value, days) {
+      const expires = new Date();
+      expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+      document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+    }
+
+    function getCookie(name) {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(';');
+      for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+      }
+      return null;
+    }
+
+    function deleteCookie(name) {
+      document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    }
+
+    // Save current state to cookies
+    function saveStateToCookies() {
+      setCookie('currentScreen', document.querySelector('.container:not(.hidden)').id, 1);
+      setCookie('currentLoginType', currentLoginType, 1);
+      setCookie('currentPositionIndex', current.toString(), 1);
+      setCookie('timeLeft', timeLeft.toString(), 1);
+      
+      // Save voting progress if in voting process
+      if (currentLoginType === 'horizon' && current > 0) {
+        setCookie('votingInProgress', 'true', 1);
+      } else {
+        setCookie('votingInProgress', 'false', 1);
+      }
+    }
+
+    // Restore state from cookies
+    function restoreStateFromCookies() {
+      const currentScreen = getCookie('currentScreen');
+      const savedLoginType = getCookie('currentLoginType');
+      const savedPositionIndex = getCookie('currentPositionIndex');
+      const savedTimeLeft = getCookie('timeLeft');
+      const votingInProgress = getCookie('votingInProgress');
+      
+      if (currentScreen && currentScreen !== 'loginContainer') {
+        // Hide all containers first
+        document.querySelectorAll('.container').forEach(container => {
+          container.classList.add('hidden');
+        });
+        
+        // Show the saved screen
+        document.getElementById(currentScreen).classList.remove('hidden');
+        
+        // Restore login type and other state
+        if (savedLoginType) {
+          currentLoginType = savedLoginType;
+        }
+        
+        if (savedPositionIndex) {
+          current = parseInt(savedPositionIndex);
+        }
+        
+        if (savedTimeLeft) {
+          timeLeft = parseInt(savedTimeLeft);
+        }
+        
+        // If we were in the middle of voting, restore the voting state
+        if (votingInProgress === 'true' && current > 0) {
+          // We need to reload candidate data first
+          loadCandidateData().then(() => {
+            showVotingFrame(ELECTION_POSITIONS[current]);
+          });
+        }
+        
+        return true;
+      }
+      return false;
+    }
 
     // Initialize the app
     document.addEventListener('DOMContentLoaded', function() {
@@ -956,8 +1001,21 @@
       // Set up confirmation dialog buttons
       document.getElementById('dialogCancel').addEventListener('click', hideConfirmationDialog);
 
-      // Load positions from Firestore
+      // Try to restore state from cookies
+      const stateRestored = restoreStateFromCookies();
+      
+      // Load positions from Firestore (whether state was restored or not)
       loadPositions();
+      
+      // If state wasn't restored from cookies, show login screen
+      if (!stateRestored) {
+        document.getElementById('loginContainer').classList.remove('hidden');
+      }
+    });
+
+    // Save state before page unload
+    window.addEventListener('beforeunload', function() {
+      saveStateToCookies();
     });
 
     // Load positions from Firestore
@@ -1020,27 +1078,14 @@
       }
     }
 
-    // Update position list display with drag and drop functionality
+    // Update position list display
     function updatePositionList() {
       const positionList = document.getElementById('positionList');
 
       if (ELECTION_POSITIONS.length > 0) {
-        positionList.innerHTML = ELECTION_POSITIONS.map((position, index) => `
-          <div class="position-item" draggable="true" data-index="${index}">
-            <div style="display: flex; align-items: center;">
-              <div class="position-number">${index + 1}</div>
-              <div class="drag-handle">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="9" cy="5" r="1"></circle>
-                  <circle cx="9" cy="12" r="1"></circle>
-                  <circle cx="9" cy="19" r="1"></circle>
-                  <circle cx="15" cy="5" r="1"></circle>
-                  <circle cx="15" cy="12" r="1"></circle>
-                  <circle cx="15" cy="19" r="1"></circle>
-                </svg>
-              </div>
-              <span>${position}</span>
-            </div>
+        positionList.innerHTML = ELECTION_POSITIONS.map(position => `
+          <div class="position-item">
+            <span>${position}</span>
             <button class="remove-position-btn" onclick="removePosition('${position.replace(/'/g, "\\'")}')">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -1050,90 +1095,8 @@
             </button>
           </div>
         `).join('');
-
-        // Set up drag and drop events
-        setupDragAndDrop();
       } else {
         positionList.innerHTML = '<div class="no-candidates">No positions added yet</div>';
-      }
-    }
-
-    // Set up drag and drop functionality
-    function setupDragAndDrop() {
-      const positionItems = document.querySelectorAll('.position-item');
-      
-      positionItems.forEach(item => {
-        item.addEventListener('dragstart', handleDragStart);
-        item.addEventListener('dragover', handleDragOver);
-        item.addEventListener('dragenter', handleDragEnter);
-        item.addEventListener('dragleave', handleDragLeave);
-        item.addEventListener('drop', handleDrop);
-        item.addEventListener('dragend', handleDragEnd);
-      });
-    }
-
-    function handleDragStart(e) {
-      dragSourceElement = this;
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', this.getAttribute('data-index'));
-      this.classList.add('dragging');
-    }
-
-    function handleDragOver(e) {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      return false;
-    }
-
-    function handleDragEnter(e) {
-      this.classList.add('drag-over');
-    }
-
-    function handleDragLeave(e) {
-      this.classList.remove('drag-over');
-    }
-
-    function handleDrop(e) {
-      e.stopPropagation();
-      
-      if (dragSourceElement !== this) {
-        const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
-        const toIndex = parseInt(this.getAttribute('data-index'));
-        
-        // Reorder the positions array
-        const movedItem = ELECTION_POSITIONS.splice(fromIndex, 1)[0];
-        ELECTION_POSITIONS.splice(toIndex, 0, movedItem);
-        
-        // Update the UI
-        updatePositionList();
-        updatePositionSelector();
-        
-        // Save the new order to Firestore
-        savePositionOrder();
-      }
-      
-      this.classList.remove('drag-over');
-      return false;
-    }
-
-    function handleDragEnd(e) {
-      document.querySelectorAll('.position-item').forEach(item => {
-        item.classList.remove('dragging');
-        item.classList.remove('drag-over');
-      });
-    }
-
-    // Save the new position order to Firestore
-    async function savePositionOrder() {
-      try {
-        await db.collection("voteCounts").doc("positions").set({
-          positions: ELECTION_POSITIONS,
-          lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        showToast('Position order updated successfully', 'success');
-      } catch (error) {
-        console.error("Error saving position order:", error);
-        showToast('Failed to save position order', 'error');
       }
     }
 
@@ -1272,6 +1235,8 @@
         document.getElementById('loginContainer').classList.add('hidden');
         loadCandidateData().then(() => {
           document.getElementById('mainMenu').classList.remove('hidden');
+          // Save state to cookies
+          saveStateToCookies();
         }).catch(error => {
           console.error("Error loading candidate data:", error);
           errorElement.textContent = 'Failed to load voting data. Please try again.';
@@ -1296,6 +1261,8 @@
           document.getElementById('candidateList').style.display = 'block';
           // Show save button
           document.querySelector('.save-btn').style.display = 'block';
+          // Save state to cookies
+          saveStateToCookies();
         }).catch(error => {
           console.error("Error loading candidate data:", error);
           errorElement.textContent = 'Failed to load candidate data. Please try again.';
@@ -1320,6 +1287,8 @@
           document.getElementById('candidateList').style.display = 'none';
           // Hide save button
           document.querySelector('.save-btn').style.display = 'none';
+          // Save state to cookies
+          saveStateToCookies();
         }).catch(error => {
           console.error("Error loading candidate data:", error);
           errorElement.textContent = 'Failed to load candidate data. Please try again.';
@@ -1505,6 +1474,8 @@
       selectedCandidate = null;
       isSkipSelected = false;
       current = 0;
+      // Save state to cookies
+      saveStateToCookies();
       showVotingFrame(ELECTION_POSITIONS[current]);
     }
 
@@ -1568,6 +1539,8 @@
         div.querySelector('.btn-next').disabled = true;
       }
       div.classList.remove("hidden");
+      // Save state to cookies
+      saveStateToCookies();
     }
 
     function selectSkip(title, buttonElement) {
@@ -1615,6 +1588,8 @@
           showThankYouMenu();
         }
       }
+      // Save state to cookies
+      saveStateToCookies();
     }
 
     function skipPosition(title) {
@@ -1626,6 +1601,8 @@
       } else {
         showThankYouMenu();
       }
+      // Save state to cookies
+      saveStateToCookies();
     }
 
     async function vote(title, candidateIndex) {
@@ -1692,6 +1669,8 @@
 
       // Start the countdown timer
       startTimer();
+      // Save state to cookies
+      saveStateToCookies();
     }
 
     function showTimeLeft() {
@@ -1716,6 +1695,8 @@
           restartBtn.disabled = false;
           restartBtn.onclick = restartVoting;
           timeLeft = 300; // Reset timer for next use
+          // Save state to cookies
+          saveStateToCookies();
         }
       }, 1000);
     }
@@ -1726,6 +1707,8 @@
       isSkipSelected = false;
       document.getElementById("thankYouMenu").classList.add("hidden");
       showVotingFrame(ELECTION_POSITIONS[current]);
+      // Save state to cookies
+      saveStateToCookies();
     }
 
     function handleAdminOverride(containerId) {
@@ -1755,6 +1738,8 @@
           timeLeft = 300;
         }
         showToast("Returned to dashboard", "success");
+        // Save state to cookies
+        saveStateToCookies();
       } else if (pass !== null) {
         showToast("Incorrect password!", "error");
       }
@@ -1764,6 +1749,8 @@
       const pass = prompt("Enter password to view total votes:");
       if (pass === "1234") {
         await showVotes();
+        // Save state to cookies
+        saveStateToCookies();
       } else if (pass !== null) {
         showToast("Incorrect password!", "error");
       }
@@ -1782,11 +1769,13 @@
       }
       document.getElementById("mainMenu").classList.add("hidden");
       document.getElementById("voteSummary").classList.remove("hidden");
+      // Save state to cookies
+      saveStateToCookies();
     }
 
     async function showCategoryVotes(title) {
       document.getElementById("voteSummary").classList.add("hidden");
-      document.getElementById("categoryVotes").classList.remove('hidden');
+      document.getElementById("categoryVotes").classList.remove("hidden");
 
       const display = document.getElementById("voteDisplay");
       const titleElement = document.getElementById("categoryTitle");
@@ -1843,9 +1832,11 @@
 
         display.appendChild(winnerDiv);
         showToast('Vote data loaded', 'success');
+        // Save state to cookies
+        saveStateToCookies();
       } catch (error) {
         console.error("Error showing category votes:", error);
-        showToast("Failed to load vote data", 'error');
+        showToast("Failed to load vote data", "error");
       }
     }
 
@@ -1876,14 +1867,16 @@
 
               await batch.commit();
               showToast('All votes have been reset successfully', 'success');
+              // Save state to cookies
+              saveStateToCookies();
             } catch (error) {
               console.error("Error clearing votes:", error);
-              showToast("Failed to reset votes", 'error');
+              showToast("Failed to reset votes", "error");
             }
           }
         );
       } else if (pass !== null) {
-        showToast("Incorrect password!", 'error');
+        showToast("Incorrect password!", "error");
       }
     }
 
@@ -2012,10 +2005,10 @@
           showToast('PDF report downloaded successfully', 'success');
         } catch (error) {
           console.error("Error generating PDF:", error);
-          showToast("Failed to generate PDF report", 'error');
+          showToast("Failed to generate PDF report", "error");
         }
       } else if (pass !== null) {
-        showToast("Incorrect password!", 'error');
+        showToast("Incorrect password!", "error");
       }
     }
 
@@ -2035,6 +2028,8 @@
         isSkipSelected = false;
         timeLeft = 300;
       }
+      // Save state to cookies
+      saveStateToCookies();
     }
   </script>
 </body>
