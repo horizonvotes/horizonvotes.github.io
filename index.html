@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,11 +6,9 @@
   <title>Horizon Academy - Voting System</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗳️</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Add jsPDF library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <style>
-    /* Main Styles */
     :root {
       --primary: #4361ee;
       --primary-dark: #3a56d4;
@@ -117,7 +114,6 @@
       padding-top: 15px;
       border-top: 1px solid var(--light-gray);
     }
-    /* Login Form Styles */
     .login-form {
       display: flex;
       flex-direction: column;
@@ -178,7 +174,6 @@
       text-align: center;
       font-weight: 50%;
     }
-    /* Candidate Management Styles */
     .management-container {
       max-width: 500px;
     }
@@ -327,7 +322,6 @@
       font-style: italic;
       background-color: var(--light);
     }
-    /* Voting Interface Styles */
     .btn {
       display: flex;
       align-items: center;
@@ -458,7 +452,6 @@
       cursor: pointer;
       opacity: 0;
     }
-    /* Vote Summary Styles */
     .vote-list {
       text-align: left;
       margin-top: 20px;
@@ -533,7 +526,6 @@
     .category-btn:hover::after {
       transform: translateX(100%);
     }
-    /* Confirmation Dialog Styles */
     .confirmation-dialog {
       position: fixed;
       top: 0;
@@ -606,7 +598,6 @@
     .dialog-btn-confirm:hover {
       background-color: #e5177e;
     }
-    /* Toast Notification Styles */
     .toast {
       position: fixed;
       bottom: 30px;
@@ -638,7 +629,6 @@
     .toast-info {
       background-color: var(--info);
     }
-    /* Loading Spinner */
     .spinner {
       display: inline-block;
       width: 20px;
@@ -651,7 +641,6 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
-    /* Position Management Styles */
     .position-management {
       margin-top: 20px;
       border-top: 1px solid var(--light-gray);
@@ -666,7 +655,7 @@
       flex-grow: 1;
       padding: 14px;
       border: 2px solid var(--light-gray);
-            border-radius: 10px;
+      border-radius: 10px;
       font-size: 16px;
       transition: var(--transition);
       font-family: 'Poppins', sans-serif;
@@ -739,7 +728,6 @@
       transform: translateY(-1px);
       box-shadow: var(--shadow);
     }
-    /* Back button for main menu */
     .back-to-login {
       position: absolute;
       top: 16px;
@@ -762,16 +750,13 @@
       background-color: var(--light-gray);
       transform: translateX(-2px);
     }
-    /* Responsive Styles */
     @media (max-width: 480px) {
       .container {
         padding: 25px 20px;
       }
-
       .academy-name {
         font-size: 24px;
       }
-
       .btn, .category-btn {
         padding: 14px;
         font-size: 15px;
@@ -781,7 +766,6 @@
       }
     }
   </style>
-  <!-- Firebase library -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
@@ -824,11 +808,7 @@
       <div class="academy-name">Horizon Academy</div>
       <div class="academy-subtitle">Candidate Management</div>
     </div>
-
-    <select class="position-selector" id="positionSelector">
-      <!-- Positions populated from code -->
-    </select>
-
+    <select class="position-selector" id="positionSelector"></select>
     <div class="candidate-input-container" id="candidateInputContainer">
       <input type="text" class="candidate-input" id="candidateNameInput" placeholder="Enter candidate name" disabled>
       <button class="add-candidate-btn" id="addCandidateBtn" onclick="addCandidate()" disabled>
@@ -839,17 +819,13 @@
         Add
       </button>
     </div>
-
     <div class="candidate-list" id="candidateList">
       <div class="no-candidates">No candidates added yet</div>
     </div>
-
     <button class="save-btn" onclick="saveCandidates()">Save Changes</button>
-
-    <!-- Position Management Section (Hidden by default) -->
+    <!-- Position Management Section -->
     <div class="position-management" id="positionManagementSection" style="display: none;">
       <h3 style="text-align: left; margin-bottom: 15px; color: var(--primary);">Position Management</h3>
-
       <div class="position-input-container">
         <input type="text" class="position-input" id="positionNameInput" placeholder="Enter new position name">
         <button class="add-position-btn" onclick="addPosition()">
@@ -860,12 +836,8 @@
           Add
         </button>
       </div>
-
-      <div class="position-list" id="positionList">
-        <!-- Positions will be populated here -->
-      </div>
+      <div class="position-list" id="positionList"></div>
     </div>
-
     <div class="creator-credit">Created By Bhavesh Pawar From Grade 9</div>
   </div>
   <!-- Main Voting Menu -->
@@ -905,13 +877,11 @@
     </div>
   </div>
   <!-- Thank You Screen -->
-  <div class="container hidden" id="thankYouMenu">
-    <!-- Dynamically generated -->
-  </div>
+  <div class="container hidden" id="thankYouMenu"></div>
+
   <script>
     // Initialize jsPDF
     const { jsPDF } = window.jspdf;
-
     // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyCMwGgyeQDkcFIhnVmkWjhSyuwQiwNbFs",
@@ -924,7 +894,7 @@
     // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    // Election positions (will be loaded from Firestore)
+    // Election positions
     let ELECTION_POSITIONS = [];
     // Global variables
     let candidatesData = {};
@@ -932,8 +902,8 @@
     let selectedCandidate = null;
     let isSkipSelected = false;
     let timerInterval;
-    let timeLeft = 300; // 5 minutes in seconds
-    let currentLoginType = ''; // Track the current login type
+    let timeLeft = 300; // 5 minutes
+    let currentLoginType = '';
 
     // Cookie functions
     function setCookie(name, value, days) {
@@ -941,7 +911,6 @@
       expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
       document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
     }
-
     function getCookie(name) {
       const nameEQ = name + "=";
       const ca = document.cookie.split(';');
@@ -952,19 +921,16 @@
       }
       return null;
     }
-
     function deleteCookie(name) {
       document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     }
 
-    // Save current state to cookies
+    // Save state to cookies
     function saveStateToCookies() {
       setCookie('currentScreen', document.querySelector('.container:not(.hidden)').id, 1);
       setCookie('currentLoginType', currentLoginType, 1);
       setCookie('currentPositionIndex', current.toString(), 1);
       setCookie('timeLeft', timeLeft.toString(), 1);
-      
-      // Save voting progress if in voting process
       if (currentLoginType === 'horizon' && current > 0) {
         setCookie('votingInProgress', 'true', 1);
       } else {
@@ -979,37 +945,20 @@
       const savedPositionIndex = getCookie('currentPositionIndex');
       const savedTimeLeft = getCookie('timeLeft');
       const votingInProgress = getCookie('votingInProgress');
-      
+
       if (currentScreen && currentScreen !== 'loginContainer') {
-        // Hide all containers first
         document.querySelectorAll('.container').forEach(container => {
           container.classList.add('hidden');
         });
-        
-        // Show the saved screen
         document.getElementById(currentScreen).classList.remove('hidden');
-        
-        // Restore login type and other state
-        if (savedLoginType) {
-          currentLoginType = savedLoginType;
-        }
-        
-        if (savedPositionIndex) {
-          current = parseInt(savedPositionIndex);
-        }
-        
-        if (savedTimeLeft) {
-          timeLeft = parseInt(savedTimeLeft);
-        }
-        
-        // If we were in the middle of voting, restore the voting state
+        if (savedLoginType) currentLoginType = savedLoginType;
+        if (savedPositionIndex) current = parseInt(savedPositionIndex);
+        if (savedTimeLeft) timeLeft = parseInt(savedTimeLeft);
         if (votingInProgress === 'true' && current > 0) {
-          // We need to reload candidate data first
           loadCandidateData().then(() => {
             showVotingFrame(ELECTION_POSITIONS[current]);
           });
         }
-        
         return true;
       }
       return false;
@@ -1017,28 +966,17 @@
 
     // Initialize the app
     document.addEventListener('DOMContentLoaded', function() {
-      // Set up login form
       document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         checkLogin();
       });
-
-      // Set up confirmation dialog buttons
       document.getElementById('dialogCancel').addEventListener('click', hideConfirmationDialog);
-
-      // Load positions from Firestore first
       loadPositions().then(() => {
-        // Try to restore state from cookies after positions are loaded
         const stateRestored = restoreStateFromCookies();
-        
-        // If state wasn't restored from cookies, show login screen
         if (!stateRestored) {
           document.getElementById('loginContainer').classList.remove('hidden');
-        } else {
-          // If we're on candidate management screen, update the candidate list
-          if (document.getElementById('candidateManagement').classList.contains('hidden') === false) {
-            updateCandidateList();
-          }
+        } else if (document.getElementById('candidateManagement').classList.contains('hidden') === false) {
+          updateCandidateList();
         }
       });
     });
@@ -1053,34 +991,19 @@
       try {
         const docRef = db.collection("voteCounts").doc("positions");
         const doc = await docRef.get();
-
         if (doc.exists) {
           ELECTION_POSITIONS = doc.data().positions || [];
         } else {
-          // Initialize with default positions if none exist
           ELECTION_POSITIONS = [
-            "Vice Captain Aravali",
-            "Vice Captain Himalaya",
-            "Vice Captain Nilgiri",
-            "Vice Captain Sayadri",
-            "Captain Aravali",
-            "Captain Himalaya",
-            "Captain Nilgiri",
-            "Captain Sayadri",
-            "Sports Captain (Boy)",
-            "Sports Captain (Girl)",
-            "Head Girl",
-            "Head Boy"
+            "Vice Captain Aravali", "Vice Captain Himalaya", "Vice Captain Nilgiri", "Vice Captain Sayadri",
+            "Captain Aravali", "Captain Himalaya", "Captain Nilgiri", "Captain Sayadri",
+            "Sports Captain (Boy)", "Sports Captain (Girl)", "Head Girl", "Head Boy"
           ];
-
-          // Save default positions to Firestore
           await docRef.set({
             positions: ELECTION_POSITIONS,
             lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
           });
         }
-
-        // Update position selector and list
         updatePositionSelector();
         updatePositionList();
       } catch (error) {
@@ -1089,29 +1012,25 @@
       }
     }
 
-    // Update position selector dropdown
+    // Update position selector
     function updatePositionSelector() {
       const positionSelector = document.getElementById('positionSelector');
       positionSelector.innerHTML = '';
-
       ELECTION_POSITIONS.forEach(position => {
         const option = document.createElement('option');
         option.value = position;
         option.textContent = position;
         positionSelector.appendChild(option);
       });
-
-      // Set up position change listener if not already set
       if (!positionSelector.hasListener) {
         positionSelector.addEventListener('change', updateCandidateList);
         positionSelector.hasListener = true;
       }
     }
 
-    // Update position list display
+    // Update position list
     function updatePositionList() {
       const positionList = document.getElementById('positionList');
-
       if (ELECTION_POSITIONS.length > 0) {
         positionList.innerHTML = ELECTION_POSITIONS.map(position => `
           <div class="position-item">
@@ -1133,33 +1052,23 @@
     // Add a new position
     async function addPosition() {
       const positionName = document.getElementById('positionNameInput').value.trim();
-
       if (!positionName) {
         showToast('Please enter a position name', 'error');
         return;
       }
-
-      // Check if position already exists
       if (ELECTION_POSITIONS.includes(positionName)) {
         showToast('This position already exists', 'error');
         return;
       }
-
-      // Add to local array
       ELECTION_POSITIONS.push(positionName);
       document.getElementById('positionNameInput').value = '';
-
-      // Update UI
       updatePositionSelector();
       updatePositionList();
-
-      // Save to Firestore
       try {
         await db.collection("voteCounts").doc("positions").set({
           positions: ELECTION_POSITIONS,
           lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
         });
-
         showToast('Position added successfully', 'success');
       } catch (error) {
         console.error("Error adding position:", error);
@@ -1174,28 +1083,16 @@
         `Are you sure you want to remove the "${positionName}" position? This will also remove all candidates and votes for this position.`,
         async () => {
           try {
-            // Remove from local array
             ELECTION_POSITIONS = ELECTION_POSITIONS.filter(pos => pos !== positionName);
-
-            // Remove from candidates data
-            if (candidatesData[positionName]) {
-              delete candidatesData[positionName];
-            }
-
-            // Remove vote counts for this position
+            if (candidatesData[positionName]) delete candidatesData[positionName];
             const voteCountRef = db.collection("voteCounts").doc(positionName);
             await voteCountRef.delete();
-
-            // Update positions in Firestore
             await db.collection("voteCounts").doc("positions").set({
               positions: ELECTION_POSITIONS,
               lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             });
-
-            // Update UI
             updatePositionSelector();
             updatePositionList();
-
             showToast('Position removed successfully', 'success');
           } catch (error) {
             console.error("Error removing position:", error);
@@ -1205,19 +1102,15 @@
       );
     }
 
-    // Show toast notification
+    // Show toast
     function showToast(message, type = 'info', duration = 3000) {
       const toast = document.getElementById('toastNotification');
       const toastMessage = document.getElementById('toastMessage');
-
       toast.className = 'toast';
       toast.classList.add(`toast-${type}`);
       toastMessage.textContent = message;
       toast.classList.add('show');
-
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, duration);
+      setTimeout(() => toast.classList.remove('show'), duration);
     }
 
     // Show confirmation dialog
@@ -1226,19 +1119,14 @@
       const dialogTitle = document.getElementById('dialogTitle');
       const dialogMessage = document.getElementById('dialogMessage');
       const dialogConfirm = document.getElementById('dialogConfirm');
-
       dialogTitle.textContent = title;
       dialogMessage.textContent = message;
-
-      // Remove previous event listeners
       const newConfirmBtn = dialogConfirm.cloneNode(true);
       dialogConfirm.parentNode.replaceChild(newConfirmBtn, dialogConfirm);
-
       newConfirmBtn.addEventListener('click', function() {
         hideConfirmationDialog();
         confirmCallback();
       });
-
       dialog.classList.add('active');
     }
 
@@ -1251,102 +1139,74 @@
     function checkLogin() {
       const passwordInput = document.getElementById('loginPassword').value;
       const errorElement = document.getElementById('loginError');
-
-      // Clear previous error
       errorElement.textContent = '';
-
       if (!passwordInput) {
         errorElement.textContent = 'Please enter a password';
         return;
       }
       if (passwordInput.toLowerCase() === 'horizon') {
-        // Successful login to main voting panel
         currentLoginType = 'horizon';
         document.getElementById('loginContainer').classList.add('hidden');
         loadCandidateData().then(() => {
           document.getElementById('mainMenu').classList.remove('hidden');
-          // Save state to cookies
           saveStateToCookies();
         }).catch(error => {
           console.error("Error loading candidate data:", error);
           errorElement.textContent = 'Failed to load voting data. Please try again.';
           document.getElementById('loginContainer').classList.remove('hidden');
         });
-      }
-      else if (passwordInput.toLowerCase() === 'data') {
-        // Successful login to candidate management
+      } else if (passwordInput.toLowerCase() === 'data') {
         currentLoginType = 'data';
         document.getElementById('loginContainer').classList.add('hidden');
         loadCandidateData().then(() => {
           document.getElementById('candidateManagement').classList.remove('hidden');
-          updateCandidateList();
-          // Hide position management section for 'data' login
           document.getElementById('positionManagementSection').style.display = 'none';
-          // Enable candidate management features
           document.getElementById('candidateNameInput').disabled = false;
           document.getElementById('addCandidateBtn').disabled = false;
-          // Show candidate input container
           document.getElementById('candidateInputContainer').style.display = 'flex';
-          // Show candidate list
           document.getElementById('candidateList').style.display = 'block';
-          // Show save button
           document.querySelector('.save-btn').style.display = 'block';
-          // Save state to cookies
+          updateCandidateList();
           saveStateToCookies();
         }).catch(error => {
           console.error("Error loading candidate data:", error);
           errorElement.textContent = 'Failed to load candidate data. Please try again.';
           document.getElementById('loginContainer').classList.remove('hidden');
         });
-      }
-      else if (passwordInput.toLowerCase() === 'field') {
-        // Successful login to position management
+      } else if (passwordInput.toLowerCase() === 'field') {
         currentLoginType = 'field';
         document.getElementById('loginContainer').classList.add('hidden');
         loadCandidateData().then(() => {
           document.getElementById('candidateManagement').classList.remove('hidden');
-          updateCandidateList();
-          // Show position management section for 'field' login
           document.getElementById('positionManagementSection').style.display = 'block';
-          // Disable candidate management features
           document.getElementById('candidateNameInput').disabled = true;
           document.getElementById('addCandidateBtn').disabled = true;
-          // Hide candidate input container
           document.getElementById('candidateInputContainer').style.display = 'none';
-          // Hide candidate list
           document.getElementById('candidateList').style.display = 'none';
-          // Hide save button
           document.querySelector('.save-btn').style.display = 'none';
-          // Save state to cookies
           saveStateToCookies();
         }).catch(error => {
           console.error("Error loading candidate data:", error);
           errorElement.textContent = 'Failed to load candidate data. Please try again.';
           document.getElementById('loginContainer').classList.remove('hidden');
         });
-      }
-      else {
-        // Failed login
+      } else {
         errorElement.textContent = 'Incorrect password. Please try again.';
       }
     }
 
-    // Load candidate data from Firestore
+    // Load candidate data
     async function loadCandidateData() {
       try {
         showToast('Loading candidate data...', 'info');
         const docRef = db.collection("voteCounts").doc("candidates");
         const doc = await docRef.get();
-
         if (doc.exists) {
           candidatesData = doc.data().positions || {};
           showToast('Candidate data loaded successfully', 'success');
         } else {
-          // Initialize empty candidates data structure
           candidatesData = {};
-          ELECTION_POSITIONS.forEach(position => {
-            candidatesData[position] = [];
-          });
+          ELECTION_POSITIONS.forEach(position => candidatesData[position] = []);
           showToast('No candidate data found. Created new structure.', 'info');
         }
       } catch (error) {
@@ -1356,17 +1216,20 @@
       }
     }
 
-    // Update the candidate list display
+    // Update candidate list
     function updateCandidateList() {
       const position = document.getElementById('positionSelector').value;
       const candidateList = document.getElementById('candidateList');
-
       if (candidatesData[position] && candidatesData[position].length > 0) {
         candidateList.innerHTML = candidatesData[position].map(candidate => `
           <div class="candidate-item">
             <span>${candidate}</span>
             <button class="remove-candidate-btn" onclick="removeCandidate('${position.replace(/'/g, "\\'")}', '${candidate.replace(/'/g, "\\'")}')" ${currentLoginType === 'field' ? 'disabled' : ''}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Remove
             </button>
           </div>
         `).join('');
@@ -1375,32 +1238,23 @@
       }
     }
 
-    // Add a new candidate
+    // Add a candidate
     function addCandidate() {
-      // Prevent adding candidates when logged in with 'field' password
       if (currentLoginType === 'field') {
         showToast('Cannot add candidates in field mode', 'error');
         return;
       }
-
       const position = document.getElementById('positionSelector').value;
       const candidateName = document.getElementById('candidateNameInput').value.trim();
-
       if (!candidateName) {
         showToast('Please enter a candidate name', 'error');
         return;
       }
-
-      if (!candidatesData[position]) {
-        candidatesData[position] = [];
-      }
-
-      // Check if candidate already exists
+      if (!candidatesData[position]) candidatesData[position] = [];
       if (candidatesData[position].includes(candidateName)) {
         showToast('This candidate already exists for this position', 'error');
         return;
       }
-
       candidatesData[position].push(candidateName);
       document.getElementById('candidateNameInput').value = '';
       updateCandidateList();
@@ -1409,35 +1263,27 @@
 
     // Remove a candidate
     function removeCandidate(position, candidateName) {
-      // Prevent removing candidates when logged in with 'field' password
       if (currentLoginType === 'field') {
         showToast('Cannot remove candidates in field mode', 'error');
         return;
       }
-
       showConfirmationDialog(
         'Remove Candidate',
         `Are you sure you want to remove ${candidateName} from ${position}? This will also remove all their votes.`,
         async () => {
           try {
-            // Remove from local data
             candidatesData[position] = candidatesData[position].filter(c => c !== candidateName);
-
-            // Remove from Firestore vote counts
             const voteCountRef = db.collection("voteCounts").doc(position);
             await db.runTransaction(async (transaction) => {
               const doc = await transaction.get(voteCountRef);
               if (!doc.exists) return;
-
               const currentVotes = doc.data().votes || {};
               delete currentVotes[candidateName];
-
               transaction.update(voteCountRef, {
                 votes: currentVotes,
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
               });
             });
-
             updateCandidateList();
             showToast('Candidate removed successfully', 'success');
           } catch (error) {
@@ -1448,16 +1294,14 @@
       );
     }
 
-    // Save all changes to Firestore
+    // Save candidates
     async function saveCandidates() {
       try {
         showToast('Saving candidate data...', 'info');
-        // Save to Firestore in the voteCounts collection
         await db.collection("voteCounts").doc("candidates").set({
           positions: candidatesData,
           lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
         });
-        // Also update the vote counts for all positions
         await updateVoteCounts();
         showToast('Candidate data saved successfully!', 'success');
       } catch (error) {
@@ -1466,17 +1310,15 @@
       }
     }
 
-    // Update vote counts in the database
+    // Update vote counts
     async function updateVoteCounts() {
       try {
         const batch = db.batch();
         for (const position of ELECTION_POSITIONS) {
           const docRef = db.collection("voteCounts").doc(position);
           const currentCandidates = candidatesData[position] || [];
-          // Get current vote counts to preserve existing votes
           const doc = await docRef.get();
           const currentVotes = doc.exists ? doc.data().votes || {} : {};
-          // Create new votes object with existing votes or 0 for new candidates
           const newVotes = {};
           currentCandidates.forEach(candidate => {
             newVotes[candidate] = currentVotes[candidate] || 0;
@@ -1487,47 +1329,40 @@
           });
         }
         await batch.commit();
-        console.log("Vote counts updated successfully");
       } catch (error) {
         console.error("Error updating vote counts:", error);
         throw error;
       }
     }
 
-    // Voting System Functions
+    // Voting functions
     function startVoting() {
       document.getElementById("mainMenu").classList.add("hidden");
       selectedCandidate = null;
       isSkipSelected = false;
       current = 0;
-      // Save state to cookies
       saveStateToCookies();
       showVotingFrame(ELECTION_POSITIONS[current]);
     }
 
     function showVotingFrame(title) {
-      document.querySelectorAll('.container').forEach(container => {
-        container.classList.add("hidden");
-      });
-      // Create a more unique ID by removing spaces and adding prefix
+      document.querySelectorAll('.container').forEach(container => container.classList.add("hidden"));
       let id = "voteFrame_" + title.replace(/\s+/g, "_");
       let div = document.getElementById(id);
       if (!div) {
         div = document.createElement("div");
         div.className = "container";
         div.id = id;
-
-        const candidateButtons = (candidatesData[title] || []).map((candidate, index) => {
-          return `
-            <button class="btn candidate-btn" onclick="selectCandidate('${title.replace(/'/g, "\\'")}', ${index}, this)">
-              <div class="candidate-content">
-                <svg xmlns="http极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
-                <div class="candidate-name">${candidate}</div>
-              </div>
-            </button>
-          `;
-        }).join('');
-
+        const candidateButtons = (candidatesData[title] || []).map((candidate, index) => `
+          <button class="btn candidate-btn" onclick="selectCandidate('${title.replace(/'/g, "\\'")}', ${index}, this)">
+            <div class="candidate-content">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;">
+                <circle cx="11" cy="11" r="8"></circle>
+              </svg>
+              <div class="candidate-name">${candidate}</div>
+            </div>
+          </button>
+        `).join('');
         div.innerHTML = `
           <button class="back-arrow" onclick="askBack('${id}')">&larr;</button>
           <button class="invisible-admin-btn" onclick="handleAdminOverride('${id}')"></button>
@@ -1535,37 +1370,31 @@
             <div class="academy-name">Horizon Academy</div>
             <div class="academy-subtitle">${title}</div>
           </div>
-          <div class极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+          <div class="scroll-container">${candidateButtons}</div>
+          <button class="btn btn-skip" onclick="selectSkip('${title.replace(/'/g, "\\'")}', this)">Skip this position</button>
           <button class="btn btn-next" onclick="proceedToNext('${title.replace(/'/g, "\\'")}')" disabled>
             Next
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px;">
-              <path d="M5 12h极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+              <path d="M5 12h14"></path>
+              <path d="M12 5l7 7-7 7"></path>
             </svg>
           </button>
           <div class="creator-credit">Created By Bhavesh Pawar From Grade 9</div>
         `;
         document.body.appendChild(div);
       } else {
-        div.querySelectorAll('.candidate-btn').forEach(btn => {
-          btn.classList.remove("selected");
-        });
-        div.querySelector('.btn-s极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+        div.querySelectorAll('.candidate-btn').forEach(btn => btn.classList.remove("selected"));
+        div.querySelector('.btn-skip').classList.remove("selected");
         div.querySelector('.btn-next').disabled = true;
       }
       div.classList.remove("hidden");
-      // Save state to cookies
       saveStateToCookies();
     }
 
     function selectSkip(title, buttonElement) {
-      // Escape special characters in the title for use in a CSS selector
       const escapedTitle = title.replace(/[()]/g, '\\$&');
       const containerId = "voteFrame_" + escapedTitle.replace(/\s+/g, "_");
-      // Use the escaped title in the querySelectorAll call
-      const buttons = document.querySelectorAll(`#${containerId} .candidate-btn`);
-      buttons.forEach(btn => {
-          btn.classList.remove("selected");
-      });
+      document.querySelectorAll(`#${containerId} .candidate-btn`).forEach(btn => btn.classList.remove("selected"));
       buttonElement.classList.add("selected");
       document.querySelector(`#${containerId} .btn-next`).disabled = false;
       selectedCandidate = null;
@@ -1573,14 +1402,9 @@
     }
 
     function selectCandidate(title, candidateIndex, buttonElement) {
-      // Escape special characters in the title for use in a CSS selector
       const escapedTitle = title.replace(/[()]/g, '\\$&');
       const containerId = "voteFrame_" + escapedTitle.replace(/\s+/g, "_");
-      // Use the escaped title in the querySelectorAll call
-      const buttons = document.querySelectorAll(`#${containerId} .candidate-btn`);
-      buttons.forEach(btn => {
-          btn.classList.remove("selected");
-      });
+      document.querySelectorAll(`#${containerId} .candidate-btn`).forEach(btn => btn.classList.remove("selected"));
       document.querySelector(`#${containerId} .btn-skip`).classList.remove("selected");
       buttonElement.classList.add("selected");
       document.querySelector(`#${containerId} .btn-next`).disabled = false;
@@ -1602,7 +1426,6 @@
           showThankYouMenu();
         }
       }
-      // Save state to cookies
       saveStateToCookies();
     }
 
@@ -1615,37 +1438,29 @@
       } else {
         showThankYouMenu();
       }
-      // Save state to cookies
       saveStateToCookies();
     }
 
     async function vote(title, candidateIndex) {
       const candidateName = candidatesData[title][candidateIndex];
-
       try {
-        const voteCountRef = db.collection("voteCounts").极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
-
+        const voteCountRef = db.collection("voteCounts").doc(title);
         await db.runTransaction(async (transaction) => {
           const doc = await transaction.get(voteCountRef);
           if (!doc.exists) {
-            // Initialize if document doesn't exist
             transaction.set(voteCountRef, {
               votes: { [candidateName]: 1 },
               lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             });
             return;
           }
-
           const currentVotes = doc.data().votes || {};
-          const currentCount = current极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
-
+          const currentCount = currentVotes[candidateName] || 0;
           transaction.update(voteCountRef, {
             [`votes.${candidateName}`]: currentCount + 1,
             lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
           });
         });
-
-        console.log(`Vote recorded for ${candidateName} as ${title}`);
       } catch (error) {
         console.error("Error recording vote:", error);
         showToast("Failed to record vote", "error");
@@ -1656,32 +1471,28 @@
     function showThankYouMenu() {
       document.querySelector('.container:not(.hidden)').classList.add('hidden');
       const thankYouMenu = document.getElementById("thankYouMenu");
-
       thankYouMenu.innerHTML = `
         <button class="back-arrow" onclick="askBack('thankYouMenu')">&larr;</button>
-        <button class="invisible-admin-btn极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+        <button class="invisible-admin-btn" onclick="handleAdminOverride('thankYouMenu')"></button>
         <div class="academy-header">
           <div class="academy-name">Horizon Academy</div>
           <div class="academy-subtitle">Thank You</div>
         </div>
         <div style="margin: 30px 0; font-size: 18px; line-height: 1.6;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+          <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--success); margin-bottom: 15px;">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
           <div style="font-size: 20px; font-weight: 600; margin-bottom: 10px; color: var(--primary);">Your votes have been submitted successfully!</div>
           <div style="color: var(--gray);">Thank you for participating in the election.</div>
         </div>
-        <button class="btn" id="restartBtn" disabled>
-          Start New Voting Session
-        </button>
+        <button class="btn" id="restartBtn" disabled>Start New Voting Session</button>
         <button class="invisible-timer-btn" onclick="showTimeLeft()"></button>
         <div class="creator-credit">Created By Bhavesh Pawar From Grade 9</div>
       `;
-
       thankYouMenu.classList.remove("hidden");
-
-      // Start the countdown timer
       startTimer();
-      // Save state to cookies
-      saveState极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+      saveStateToCookies();
     }
 
     function showTimeLeft() {
@@ -1692,21 +1503,14 @@
 
     function startTimer() {
       const restartBtn = document.getElementById("restartBtn");
-
-      // Clear any existing timer
-      if (timerInterval) {
-        clearInterval(timerInterval);
-      }
-
+      if (timerInterval) clearInterval(timerInterval);
       timerInterval = setInterval(() => {
         timeLeft--;
-
         if (timeLeft <= 0) {
           clearInterval(timerInterval);
           restartBtn.disabled = false;
           restartBtn.onclick = restartVoting;
-          timeLeft = 300; // Reset timer for next use
-          // Save state to cookies
+          timeLeft = 300;
           saveStateToCookies();
         }
       }, 1000);
@@ -1718,7 +1522,6 @@
       isSkipSelected = false;
       document.getElementById("thankYouMenu").classList.add("hidden");
       showVotingFrame(ELECTION_POSITIONS[current]);
-      // Save state to cookies
       saveStateToCookies();
     }
 
@@ -1749,7 +1552,6 @@
           timeLeft = 300;
         }
         showToast("Returned to dashboard", "success");
-        // Save state to cookies
         saveStateToCookies();
       } else if (pass !== null) {
         showToast("Incorrect password!", "error");
@@ -1758,9 +1560,8 @@
 
     async function askViewVotes() {
       const pass = prompt("Enter password to view total votes:");
-     极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+      if (pass === "1234") {
         await showVotes();
-        // Save state to cookies
         saveStateToCookies();
       } else if (pass !== null) {
         showToast("Incorrect password!", "error");
@@ -1770,46 +1571,35 @@
     async function showVotes() {
       const voteButtons = document.getElementById("voteButtons");
       voteButtons.innerHTML = '';
-
       for (const pos of ELECTION_POSITIONS) {
         const btn = document.createElement("button");
         btn.className = "category-btn";
         btn.textContent = pos;
-        btn.on极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+        btn.onclick = () => showCategoryVotes(pos);
         voteButtons.appendChild(btn);
       }
       document.getElementById("mainMenu").classList.add("hidden");
       document.getElementById("voteSummary").classList.remove("hidden");
-      // Save state to cookies
       saveStateToCookies();
     }
 
     async function showCategoryVotes(title) {
       document.getElementById("voteSummary").classList.add("hidden");
       document.getElementById("categoryVotes").classList.remove("hidden");
-
       const display = document.getElementById("voteDisplay");
       const titleElement = document.getElementById("categoryTitle");
-
       try {
         showToast('Loading vote data...', 'info');
         const docRef = db.collection("voteCounts").doc(title);
         const docSnap = await docRef.get();
-
-        if (!docSnap.exists) {
-          throw new Error("No vote data found for this position");
-        }
-
+        if (!docSnap.exists) throw new Error("No vote data found for this position");
         const voteData = docSnap.data().votes || {};
         const candidatesList = candidatesData[title] || [];
-
         titleElement.textContent = title;
         display.innerHTML = '';
-
         const votes = candidatesList.map(candidate => voteData[candidate] || 0);
         const maxVotes = Math.max(...votes);
-        const winners = votes.map((votes, index) => votes === maxVotes极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
-
+        const winners = votes.map((votes, index) => votes === maxVotes ? index : -1).filter(index => index !== -1);
         candidatesList.forEach((candidate, index) => {
           const row = document.createElement("div");
           row.className = "candidate-row";
@@ -1819,31 +1609,25 @@
           `;
           display.appendChild(row);
         });
-
         const winnerDiv = document.createElement("div");
         winnerDiv.className = "winner";
-
         if (winners.length > 1) {
           winnerDiv.innerHTML = `
             <div style="color: var(--danger);">No Winner (Tie)</div>
             <div class="winner-name">${winners.map(i => candidatesList[i]).join(', ')}</div>
-            <div class="winner-votes">All have ${maxVotes} vote${max极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+            <div class="winner-votes">All have ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}</div>
           `;
         } else if (winners.length === 1) {
-          winner极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+          winnerDiv.innerHTML = `
             <div style="color: var(--success);">Winner</div>
             <div class="winner-name">${candidatesList[winners[0]]}</div>
             <div class="winner-votes">with ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}</div>
           `;
         } else {
-          winnerDiv.innerHTML = `
-            <div style="color: var(--gray);">No Votes Recorded</div>
-          `;
+          winnerDiv.innerHTML = `<div style="color: var(--gray);">No Votes Recorded</div>`;
         }
-
         display.appendChild(winnerDiv);
         showToast('Vote data loaded', 'success');
-        // Save state to cookies
         saveStateToCookies();
       } catch (error) {
         console.error("Error showing category votes:", error);
@@ -1860,25 +1644,18 @@
           async () => {
             try {
               showToast('Resetting all votes...', 'info');
-              // Reset all vote counts in Firestore
               const batch = db.batch();
-
               for (const position of ELECTION_POSITIONS) {
                 const docRef = db.collection("voteCounts").doc(position);
                 const initialVotes = {};
-                (candidatesData[position] || []).forEach(candidate => {
-                  initialVotes[candidate] = 0;
-                });
-
+                (candidatesData[position] || []).forEach(candidate => initialVotes[candidate] = 0);
                 batch.set(docRef, {
                   votes: initialVotes,
                   lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
                 });
               }
-
               await batch.commit();
               showToast('All votes have been reset successfully', 'success');
-              // Save state to cookies
               saveStateToCookies();
             } catch (error) {
               console.error("Error clearing votes:", error);
@@ -1896,141 +1673,91 @@
       if (pass === "1234") {
         try {
           showToast('Generating PDF report...', 'info');
-
-          // Create a new PDF document
           const doc = new jsPDF();
-
-          // Add title
           doc.setFontSize(20);
-          doc.setTextColor(67, 97, 238); // Primary color
+          doc.setTextColor(67, 97, 238);
           doc.text('Horizon Academy Election Results', 105, 20, { align: 'center' });
-
-          doc.set极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
-          doc.setTextColor(33, 37, 41); // Dark color
-          doc.text('Generated on: ' + new Date().toLocaleString(), 105, 30, { align: '极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
-
-          // Add creator credit
+          doc.setFontSize(12);
+          doc.setTextColor(33, 37, 41);
+          doc.text('Generated on: ' + new Date().toLocaleString(), 105, 30, { align: 'center' });
           doc.setFontSize(10);
-          doc.setTextColor(108, 117, 125); // Gray color
+          doc.setTextColor(108, 117, 125);
           doc.text('Created By Bhavesh Pawar From Grade 9', 105, 285, { align: 'center' });
-
-          // Add line separator
           doc.setDrawColor(67, 97, 238);
-          doc.setLineWidth极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+          doc.setLineWidth(0.5);
           doc.line(20, 35, 190, 35);
-
           let yPosition = 45;
-
-          // Process each position
           for (const position of ELECTION_POSITIONS) {
-            // Get vote data for this position
-            const docRef = db.collection("voteCounts").doc(position);
-            const docSnap = await docRef.get();
-
-            if (!docSnap.exists) continue;
-
-            const voteData = docSnap.data().votes || {};
-            const candidatesList = candidatesData[position] || [];
-
-            // Check if we need a new page
             if (yPosition > 250) {
               doc.addPage();
               yPosition = 20;
             }
-
-            // Add position title
             doc.setFontSize(14);
             doc.setTextColor(67, 97, 238);
             doc.text(position, 20, yPosition);
             yPosition += 10;
-
-            // Prepare data for the table
+            const docRef = db.collection("voteCounts").doc(position);
+            const docSnap = await docRef.get();
+            if (!docSnap.exists) continue;
+            const voteData = docSnap.data().votes || {};
+            const candidatesList = candidatesData[position] || [];
             const tableData = [];
             let totalVotes = 0;
-
             candidatesList.forEach(candidate => {
               const votes = voteData[candidate] || 0;
-              tableData.push([极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+              tableData.push([candidate, votes.toString()]);
               totalVotes += votes;
             });
-
-            // Add table with results
             doc.autoTable({
               startY: yPosition,
               head: [['Candidate', 'Votes']],
               body: tableData,
               theme: 'grid',
-              headStyles: {
-                fillColor: [67, 97, 238],
-                textColor: 255,
-                fontStyle: 'bold'
-              },
-              styles: {
-                cellPadding: 5,
-                fontSize: 10,
-                valign: 'middle'
-              },
-              columnStyles: {
-                0: { cellWidth: 'auto', fontStyle: 'bold' },
-                1: { cellWidth: 'auto', halign: 'right' }
-              }
+              headStyles: { fillColor: [67, 97, 238], textColor: 255, fontStyle: 'bold' },
+              styles: { cellPadding: 5, fontSize: 10, valign: 'middle' },
+              columnStyles: { 0: { cellWidth: 'auto', fontStyle: 'bold' }, 1: { cellWidth: 'auto', halign: 'right' } }
             });
-
-            // Update yPosition after table
             yPosition = doc.lastAutoTable.finalY + 10;
-
-            // Find winner(s)
             const votes = candidatesList.map(candidate => voteData[candidate] || 0);
             const maxVotes = Math.max(...votes);
             const winners = votes.map((votes, index) => votes === maxVotes ? index : -1).filter(index => index !== -1);
-
-            // Add winner information
             if (winners.length > 0) {
               doc.setFontSize(12);
               doc.setTextColor(33, 37, 41);
-
               if (winners.length > 1) {
-                doc.setTextColor(247, 极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+                doc.setTextColor(247, 37, 133);
                 doc.text('Tie between: ' + winners.map(i => candidatesList[i]).join(', '), 20, yPosition);
                 yPosition += 7;
                 doc.text(`Each has ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}`, 20, yPosition);
               } else {
-                doc.setTextColor(76, 201, 240); // Success color
+                doc.setTextColor(76, 201, 240);
                 doc.text('Winner: ' + candidatesList[winners[0]], 20, yPosition);
                 yPosition += 7;
-                doc.text(`with ${maxVotes} vote${maxVotes !== 1极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+                doc.text(`with ${maxVotes} vote${maxVotes !== 1 ? 's' : ''}`, 20, yPosition);
               }
-
               yPosition += 15;
             }
-
-            // Add small separator
             doc.setDrawColor(200, 200, 200);
             doc.setLineWidth(0.2);
             doc.line(20, yPosition, 190, yPosition);
             yPosition += 10;
           }
-
-          // Save the PDF
           doc.save('Horizon_Academy_Election_Results.pdf');
           showToast('PDF report downloaded successfully', 'success');
         } catch (error) {
-          console.error("Error generating PDF:",极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+          console.error("Error generating PDF:", error);
           showToast("Failed to generate PDF report", "error");
         }
-      } else极速赛车开奖直播 澳洲幸运10开奖结果 澳洲幸运10开奖记录
+      } else {
         showToast("Incorrect password!", "error");
       }
     }
 
-    // Navigation function
     function goTo(from, to) {
-      // Clear any existing timer
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
       }
-
       document.getElementById(from).classList.add("hidden");
       document.getElementById(to).classList.remove("hidden");
       if (to === 'mainMenu') {
@@ -2039,7 +1766,6 @@
         isSkipSelected = false;
         timeLeft = 300;
       }
-      // Save state to cookies
       saveStateToCookies();
     }
   </script>
