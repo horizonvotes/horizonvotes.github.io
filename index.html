@@ -1755,19 +1755,18 @@
     }
 
     function goTo(from, to) {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-  document.getElementById(from).classList.add("hidden");
-  document.getElementById(to).classList.remove("hidden");
-  if (to === 'mainMenu') {
-    current = 0;
-    selectedCandidate = null;
-    isSkipSelected = false;
-    timeLeft = 300;
-  }
-}
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      document.getElementById(from).classList.add("hidden");
+      document.getElementById(to).classList.remove("hidden");
+      if (to === 'mainMenu') {
+        current = 0;
+        selectedCandidate = null;
+        isSkipSelected = false;
+        timeLeft = 300;
+      }
     }
   </script>
 </body>
